@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/david.mcaughtrie/.claude/projects/c--Users-david.mcaughtrie-OneDrive---Cyncly-Documents-Dynamo-fitness/memory/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\david.mcaughtrie\\.claude\\projects\\c--Users-david.mcaughtrie-OneDrive---Cyncly-Documents-Dynamo-fitness\\memory"
+    ]
+  }
+}
