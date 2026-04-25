@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Morning Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+    --accent: #95BFE5;
+    --warm: #E8B473;
+    --orange: #FF7A3D;
+    --green: #3CE89C;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "tnum";
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    opacity: 0.04; z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+  .app {
+    max-width: 430px; margin: 0 auto; min-height: 100vh;
+    position: relative; background: var(--bg); overflow: hidden;
+  }
+
+  /* ---------- Screen stack ---------- */
+  .screen {
+    position: absolute; inset: 0;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.2,.8,.2,1);
+    display: flex; flex-direction: column;
+    transform: translateY(6px);
+    overflow-y: auto;
+  }
+  .screen.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+  /* ---------- Top ---------- */
+  .top {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px 8px;
+  }
+  .back-btn, .close-btn {
+    width: 36px; height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); cursor: pointer;
+  }
+  .back-btn svg, .close-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .progress {
+    flex: 1; height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.45s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 0 8px rgba(149,191,229,0.4);
+  }
+  .step-counter {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-muted);
+    letter-spacing: 0.12em;
+    min-width: 40px; text-align: right;
+  }
+
+  /* ---------- Content ---------- */
+  .content {
+    flex: 1; padding: 20px 22px; display: flex; flex-direction: column;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.22em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+  h1.q {
+    font-family: var(--font-display);
+    font-weight: 900; font-size: 52px;
+    line-height: 0.9; letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1.q .accent { color: var(--accent); font-style: italic; }
+  .lead {
+    font-size: 13.5px; color: var(--text-dim);
+    line-height: 1.5; margin-bottom: 26px;
+    max-width: 34ch;
+  }
+
+  .cta-bar {
+    padding: 14px 22px 28px;
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    position: sticky; bottom: 0;
+  }
+  .cta {
+    width: 100%;
+    background: var(--accent); color: #000;
+    border: none; border-radius: 16px;
+    padding: 18px;
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 20px;
+    text-transform: uppercase; letter-spacing: 0.02em;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 8px 24px rgba(149, 191, 229, 0.2);
+  }
+  .cta.secondary {
+    background: var(--surface); color: var(--text-dim);
+    border: 1px solid var(--border);
+    box-shadow: none;
+    font-family: var(--font-mono);
+    font-size: 12px; font-weight: 500;
+    padding: 14px;
+    letter-spacing: 0.12em;
+  }
+  .cta svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+
+  /* ---------- Energy picker ---------- */
+  .battery-stack {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .batt {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .batt.selected {
+    background: linear-gradient(135deg, rgba(149,191,229,0.08), transparent 55%), var(--surface);
+    border-color: var(--accent);
+  }
+  .batt-icon {
+    width: 56px; height: 28px;
+    border: 2px solid var(--text-dim);
+    border-radius: 4px;
+    position: relative;
+    display: flex; padding: 3px; gap: 2px;
+    flex-shrink: 0;
+  }
+  .batt-icon::after {
+    content: ''; position: absolute;
+    right: -5px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 10px;
+    background: var(--text-dim); border-radius: 0 2px 2px 0;
+  }
+  .batt-icon i {
+    flex: 1; background: var(--surface-3); border-radius: 1px;
+  }
+  .batt-icon i.on { background: var(--accent); }
+  .batt.selected .batt-icon { border-color: var(--accent); }
+  .batt.selected .batt-icon::after { background: var(--accent); }
+  .batt-label {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 24px;
+    text-transform: uppercase; letter-spacing: -0.01em;
+    line-height: 1; margin-bottom: 3px;
+  }
+  .batt-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ---------- Sleep scale ---------- */
+  .sleep-scale {
+    display: flex; gap: 6px; margin-bottom: 24px;
+  }
+  .sleep-seg {
+    flex: 1; aspect-ratio: 0.75;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    padding: 10px 6px;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+  .sleep-seg.selected {
+    background: var(--accent); border-color: var(--accent);
+    color: #000;
+  }
+  .sleep-seg-num {
+    font-family: var(--font-display);
+    font-weight: 900; font-size: 28px;
+    line-height: 1; letter-spacing: -0.02em;
+  }
+  .sleep-seg-label {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .sleep-seg.selected .sleep-seg-label { color: rgba(0,0,0,0.55); }
+
+  .sleep-dur {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sleep-dur-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-muted);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .sleep-dur-value {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .sleep-dur-value .u {
+    font-size: 12px; color: var(--text-dim);
+    font-weight: 600; margin-left: 2px;
+  }
+
+  /* ---------- Joints ---------- */
+  .all-clear-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 11px;
+    cursor: pointer;
+    margin-bottom: 14px;
+    transition: all 0.15s;
+  }
+  .all-clear-btn.selected {
+    background: rgba(60, 232, 156, 0.08);
+    border-color: rgba(60, 232, 156, 0.3);
+    color: var(--green);
+  }
+  .all-clear-btn strong { color: var(--text); font-weight: 500; margin-right: 8px; }
+  .all-clear-btn.selected strong { color: var(--green); }
+
+  .joint-list {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .joint-row {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.15s;
+  }
+  .joint-row.flagged {
+    background: linear-gradient(135deg, rgba(232, 180, 115, 0.05), transparent 60%), var(--surface);
+    border-color: rgba(232, 180, 115, 0.3);
+  }
+  .joint-row.flagged.severe {
+    background: linear-gradient(135deg, rgba(255, 122, 61, 0.06), transparent 60%), var(--surface);
+    border-color: rgba(255, 122, 61, 0.32);
+  }
+  .joint-toggle {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .joint-toggle svg { width: 12px; height: 12px; stroke: #000; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+  .joint-row.flagged .joint-toggle { background: var(--warm); border-color: var(--warm); }
+  .joint-row.flagged.severe .joint-toggle { background: var(--orange); border-color: var(--orange); }
+  .joint-row.flagged .joint-toggle svg { opacity: 1; }
+  .joint-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .joint-sev {
+    display: flex; gap: 3px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .joint-row.flagged .joint-sev { opacity: 1; pointer-events: auto; }
+  .sev {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: var(--surface-3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .sev.selected {
+    background: var(--warm); color: #000;
+  }
+  .sev[data-sev="3"].selected { background: var(--orange); }
+
+  /* ---------- Triggers ---------- */
+  .trigger-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .trig {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 100px;
+    padding: 11px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .trig.selected {
+    background: var(--accent); color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ---------- Summary ---------- */
+  .summary-screen {
+    padding: 0 22px;
+    justify-content: center;
+    text-align: center;
+  }
+  .summary-tick {
+    width: 72px; height: 72px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 26px;
+    box-shadow: 0 0 32px rgba(149, 191, 229, 0.32);
+    animation: popIn 0.5s cubic-bezier(.2,1.5,.4,1) forwards;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+  .summary-tick svg {
+    width: 36px; height: 36px;
+    stroke: #000; fill: none; stroke-width: 3;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .summary-title {
+    font-family: var(--font-display);
+    font-weight: 900; font-size: 48px;
+    line-height: 0.9; letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .summary-lead {
+    font-size: 14px; color: var(--text-dim);
+    line-height: 1.5; max-width: 28ch;
+    margin: 0 auto 32px;
+  }
+  .summary-list {
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between;
+    padding: 9px 0;
+    border-top: 1px dashed var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .summary-row:first-child { border-top: none; }
+  .summary-row .k {
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .summary-row .v { color: var(--text); font-weight: 500; text-align: right; }
+  .summary-row .v.warm { color: var(--warm); }
+  .summary-row .v.orange { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- SCREEN 1: ENERGY -->
+  <div class="screen active" data-step="0">
+    <div class="top">
+      <button class="close-btn" onclick="alert('Dismissed — you can log later from Today')"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" stroke-linecap="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 20%"></div></div>
+      <span class="step-counter">01/04</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Morning check-in · Fri 17 Apr</div>
+      <h1 class="q">How's the<br><span class="accent">battery?</span></h1>
+      <div class="lead">Your sense of it — not a number. Takes about 30 seconds in total.</div>
+
+      <div class="battery-stack" data-group="energy">
+        <div class="batt" data-val="5">
+          <div class="batt-icon"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          <div><div class="batt-label">Firing</div><div class="batt-sub">Full tank · can push</div></div>
+        </div>
+        <div class="batt" data-val="4">
+          <div class="batt-icon"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+          <div><div class="batt-label">Good</div><div class="batt-sub">Normal session doable</div></div>
+        </div>
+        <div class="batt" data-val="3">
+          <div class="batt-icon"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          <div><div class="batt-label">Moderate</div><div class="batt-sub">Steady, nothing flashy</div></div>
+        </div>
+        <div class="batt selected" data-val="2">
+          <div class="batt-icon"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+          <div><div class="batt-label">Low</div><div class="batt-sub">Gentle movement only</div></div>
+        </div>
+        <div class="batt" data-val="1">
+          <div class="batt-icon"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+          <div><div class="batt-label">Empty</div><div class="batt-sub">Rest day · back tomorrow</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Next <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: SLEEP -->
+  <div class="screen" data-step="1">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 45%"></div></div>
+      <span class="step-counter">02/04</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 02 · Sleep</div>
+      <h1 class="q">How did<br>you <span class="accent">sleep?</span></h1>
+      <div class="lead">Poor sleep + flare is the combo that usually signals easing back.</div>
+
+      <div class="sleep-scale" data-group="sleep">
+        <div class="sleep-seg" data-val="1"><div class="sleep-seg-num">1</div><div class="sleep-seg-label">Awful</div></div>
+        <div class="sleep-seg" data-val="2"><div class="sleep-seg-num">2</div><div class="sleep-seg-label">Rough</div></div>
+        <div class="sleep-seg selected" data-val="3"><div class="sleep-seg-num">3</div><div class="sleep-seg-label">Fair</div></div>
+        <div class="sleep-seg" data-val="4"><div class="sleep-seg-num">4</div><div class="sleep-seg-label">Good</div></div>
+        <div class="sleep-seg" data-val="5"><div class="sleep-seg-num">5</div><div class="sleep-seg-label">Great</div></div>
+      </div>
+
+      <div class="sleep-dur">
+        <span class="sleep-dur-label">Hours (optional)</span>
+        <span class="sleep-dur-value">6<span class="u">h</span> 12<span class="u">m</span></span>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Next <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: JOINTS -->
+  <div class="screen" data-step="2">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 70%"></div></div>
+      <span class="step-counter">03/04</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 03 · Joints</div>
+      <h1 class="q">Anything<br><span class="accent">flaring?</span></h1>
+      <div class="lead">Flag anything off. Severity 1 – 3. This directly shapes what's suggested.</div>
+
+      <button class="all-clear-btn" id="allClear" onclick="toggleAllClear()">
+        <span><strong>All clear</strong>Nothing today</span>
+        <span>→</span>
+      </button>
+
+      <div class="joint-list" id="joints">
+        <div class="joint-row flagged severe" data-joint="toe-l" data-sev="3">
+          <div class="joint-toggle"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div class="joint-name">Big toe · left</div>
+          <div class="joint-sev">
+            <div class="sev" data-sev="1">1</div>
+            <div class="sev" data-sev="2">2</div>
+            <div class="sev selected" data-sev="3">3</div>
+          </div>
+        </div>
+        <div class="joint-row flagged" data-joint="ankle-l" data-sev="1">
+          <div class="joint-toggle"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div class="joint-name">Ankle · left</div>
+          <div class="joint-sev">
+            <div class="sev selected" data-sev="1">1</div>
+            <div class="sev" data-sev="2">2</div>
+            <div class="sev" data-sev="3">3</div>
+          </div>
+        </div>
+        <div class="joint-row" data-joint="knee-l">
+          <div class="joint-toggle"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div class="joint-name">Knee · left</div>
+          <div class="joint-sev">
+            <div class="sev" data-sev="1">1</div>
+            <div class="sev" data-sev="2">2</div>
+            <div class="sev" data-sev="3">3</div>
+          </div>
+        </div>
+        <div class="joint-row" data-joint="knee-r">
+          <div class="joint-toggle"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div class="joint-name">Knee · right</div>
+          <div class="joint-sev">
+            <div class="sev" data-sev="1">1</div>
+            <div class="sev" data-sev="2">2</div>
+            <div class="sev" data-sev="3">3</div>
+          </div>
+        </div>
+        <div class="joint-row" data-joint="hand">
+          <div class="joint-toggle"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div class="joint-name">Hands / fingers</div>
+          <div class="joint-sev">
+            <div class="sev" data-sev="1">1</div>
+            <div class="sev" data-sev="2">2</div>
+            <div class="sev" data-sev="3">3</div>
+          </div>
+        </div>
+        <div class="joint-row" data-joint="lower-back">
+          <div class="joint-toggle"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div class="joint-name">Lower back</div>
+          <div class="joint-sev">
+            <div class="sev" data-sev="1">1</div>
+            <div class="sev" data-sev="2">2</div>
+            <div class="sev" data-sev="3">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Next <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: TRIGGERS -->
+  <div class="screen" data-step="3">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 90%"></div></div>
+      <span class="step-counter">04/04</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 04 · Optional</div>
+      <h1 class="q">Yesterday —<br>anything <span class="accent">notable?</span></h1>
+      <div class="lead">Only asked because a joint is newly flagged today. Multi-select, skip if none apply.</div>
+
+      <div class="trigger-grid" id="triggers">
+        <div class="trig">Alcohol</div>
+        <div class="trig selected">Red meat</div>
+        <div class="trig">Shellfish</div>
+        <div class="trig">Sugary drinks</div>
+        <div class="trig">Dehydration</div>
+        <div class="trig">Travel</div>
+        <div class="trig">Heat / hot tub</div>
+        <div class="trig">Poor sleep</div>
+        <div class="trig">Intense session</div>
+        <div class="trig">Stress</div>
+        <div class="trig">Missed dose</div>
+        <div class="trig">+ Custom</div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Log check-in <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: DONE -->
+  <div class="screen summary-screen" data-step="4">
+    <div class="top">
+      <div style="width: 36px;"></div>
+      <div class="progress"><div class="progress-fill" style="width: 100%"></div></div>
+      <span class="step-counter">Done</span>
+    </div>
+    <div class="content" style="justify-content: center;">
+      <div class="summary-tick">
+        <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+      </div>
+      <div class="summary-title">Logged.<br>Plan tuned.</div>
+      <div class="summary-lead">Your Today screen and suggested session have been adapted around what you've shared.</div>
+
+      <div class="summary-list">
+        <div class="summary-row"><span class="k">Energy</span><span class="v">2 / 5 · low</span></div>
+        <div class="summary-row"><span class="k">Sleep</span><span class="v">3 · fair · 6h 12</span></div>
+        <div class="summary-row"><span class="k">Joints flagged</span><span class="v orange">Big toe · L3</span></div>
+        <div class="summary-row"><span class="k">Joints mild</span><span class="v warm">Ankle · L1</span></div>
+        <div class="summary-row"><span class="k">Notable</span><span class="v">Red meat</span></div>
+        <div class="summary-row"><span class="k">Flare day</span><span class="v">Day 4 of current</span></div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="enterToday()">Back to Today <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let step = 0;
+  const maxStep = 4;
+
+  function show(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const t = document.querySelector(`.screen[data-step="${n}"]`);
+    if (t) t.classList.add('active');
+    step = n;
+  }
+  function advance() { show(Math.min(step + 1, maxStep)); }
+  function back() { show(Math.max(step - 1, 0)); }
+  function enterToday() { alert('Returning to Today…'); }
+
+  // Energy cards
+  document.querySelectorAll('.batt').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.batt').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+    });
+  });
+
+  // Sleep segments
+  document.querySelectorAll('.sleep-seg').forEach(s => {
+    s.addEventListener('click', () => {
+      document.querySelectorAll('.sleep-seg').forEach(x => x.classList.remove('selected'));
+      s.classList.add('selected');
+    });
+  });
+
+  // Joints
+  document.querySelectorAll('.joint-row').forEach(row => {
+    row.querySelector('.joint-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const flagged = row.classList.contains('flagged');
+      if (flagged) {
+        row.classList.remove('flagged', 'severe');
+        row.querySelectorAll('.sev').forEach(s => s.classList.remove('selected'));
+      } else {
+        row.classList.add('flagged');
+        row.querySelector('.sev[data-sev="1"]').classList.add('selected');
+      }
+      document.getElementById('allClear').classList.remove('selected');
+    });
+    row.querySelectorAll('.sev').forEach(sev => {
+      sev.addEventListener('click', () => {
+        row.querySelectorAll('.sev').forEach(s => s.classList.remove('selected'));
+        sev.classList.add('selected');
+        const lvl = sev.dataset.sev;
+        row.classList.remove('severe');
+        if (lvl === '3') row.classList.add('severe');
+        row.classList.add('flagged');
+      });
+    });
+  });
+
+  function toggleAllClear() {
+    const btn = document.getElementById('allClear');
+    btn.classList.toggle('selected');
+    if (btn.classList.contains('selected')) {
+      document.querySelectorAll('.joint-row').forEach(r => {
+        r.classList.remove('flagged', 'severe');
+        r.querySelectorAll('.sev').forEach(s => s.classList.remove('selected'));
+      });
+    }
+  }
+
+  // Triggers
+  document.querySelectorAll('.trig').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('selected'));
+  });
+</script>
+
+</body>
+</html>

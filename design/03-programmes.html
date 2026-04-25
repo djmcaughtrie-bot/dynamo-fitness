@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Programmes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+    --accent: #95BFE5;
+    --accent-dim: #6FA0CC;
+    --orange: #FF7A3D;
+    --green: #3CE89C;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 100px;
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .icon-btn {
+    width: 40px; height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+  .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .topbar .right { display: flex; gap: 8px; }
+
+  /* ---------- Page title ---------- */
+  .page-head { padding: 14px 22px 22px; }
+  .page-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .page-tag::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--accent);
+  }
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 64px;
+    line-height: 0.88;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+  .page-title .accent { color: var(--accent); font-style: italic; }
+  .page-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 14px;
+  }
+
+  /* ---------- Continuing card ---------- */
+  .cont-card {
+    margin: 0 22px 28px;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(149,191,229,0.10), transparent 55%),
+      var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.18);
+    border-radius: 22px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .cont-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20px; bottom: 20px;
+    width: 3px;
+    background: var(--accent);
+  }
+  .cont-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .cont-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.8s infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.85); }
+  }
+  .cont-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 36px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .cont-meta {
+    display: flex;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .cont-meta strong { color: var(--text); font-weight: 500; }
+  .cont-meta .dot { color: var(--text-muted); }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(149,191,229,0.5);
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .progress-meta .pct { color: var(--accent); font-weight: 500; }
+
+  .cont-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+  .next-session {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+  .next-session strong {
+    color: var(--text);
+    font-weight: 500;
+    display: block;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .resume-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .resume-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.4; }
+
+  /* ---------- Filter chips ---------- */
+  .chips {
+    display: flex;
+    gap: 8px;
+    padding: 0 22px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin-bottom: 24px;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 100px;
+    padding: 10px 14px 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+  .chip .count {
+    background: var(--surface-3);
+    color: var(--text-muted);
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .chip.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .chip.active .count {
+    background: rgba(0,0,0,0.15);
+    color: #000;
+  }
+
+  /* ---------- Section ---------- */
+  .section-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0 22px;
+    margin: 0 0 14px;
+  }
+  .section-h h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-h h3::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .section-h .meta {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Featured grid ---------- */
+  .featured {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 22px;
+    margin-bottom: 32px;
+  }
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    aspect-ratio: 0.78;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.15s;
+  }
+  .feat-card:active { transform: scale(0.98); }
+  .feat-cover {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .feat-cover svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .feat-info {
+    padding: 12px 14px 14px;
+  }
+  .feat-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .feat-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .feat-meta {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .feat-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 2;
+  }
+  .feat-badge.dark {
+    background: rgba(0,0,0,0.6);
+    color: var(--accent);
+    border: 1px solid rgba(149,191,229,0.4);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Cover pattern fills */
+  .feat-cover.golf {
+    background: radial-gradient(circle at 50% 85%, rgba(149,191,229,0.12), transparent 60%), var(--surface-2);
+  }
+  .feat-cover.strength {
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  }
+  .feat-cover.cardio {
+    background: linear-gradient(135deg, rgba(255, 122, 61, 0.04), transparent), var(--surface-2);
+  }
+  .feat-cover.mobility {
+    background: linear-gradient(180deg, var(--surface-2), rgba(90, 163, 255, 0.04));
+  }
+
+  /* ---------- All programmes list ---------- */
+  .prog-list {
+    margin: 0 22px 0;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .prog-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 16px;
+    border-top: 1px solid var(--border-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .prog-row:first-child { border-top: none; }
+  .prog-row:active { background: var(--surface-2); }
+  .prog-thumb {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: var(--surface-3);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .prog-thumb svg {
+    width: 100%; height: 100%;
+    position: absolute;
+    inset: 0;
+  }
+  .prog-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .prog-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .prog-title {
+    font-weight: 500;
+    font-size: 14.5px;
+    letter-spacing: -0.005em;
+  }
+  .prog-mini-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(149,191,229,0.14);
+    color: var(--accent);
+    border: 1px solid rgba(149,191,229,0.25);
+  }
+  .prog-mini-badge.saved {
+    background: var(--surface-3);
+    color: var(--text-dim);
+    border-color: var(--border);
+  }
+  .prog-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    display: flex;
+    gap: 8px;
+    text-transform: uppercase;
+  }
+  .prog-meta .tag {
+    color: var(--text-muted);
+  }
+  .prog-meta .dot { color: var(--text-muted); }
+  .prog-meta strong { color: var(--text); font-weight: 500; }
+  .prog-arrow {
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .prog-arrow svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* ---------- AI build card ---------- */
+  .ai-build {
+    margin: 28px 22px 0;
+    background:
+      linear-gradient(135deg, rgba(149,191,229,0.08), transparent 55%),
+      var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.2);
+    border-radius: 20px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+  .ai-build::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(149,191,229,0.14), transparent 65%);
+    pointer-events: none;
+  }
+  .ai-build-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .ai-build-label::before { content: '◆'; font-size: 10px; }
+  .ai-build h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    margin-bottom: 10px;
+  }
+  .ai-build h3 .accent { color: var(--accent); font-style: italic; }
+  .ai-build p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    max-width: 92%;
+  }
+  .ai-build .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 11px 16px;
+    border-radius: 10px;
+  }
+  .ai-build .btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.4; }
+
+  /* ---------- Animations ---------- */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.6s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.1s; }
+  .delay-3 { animation-delay: 0.15s; }
+  .delay-4 { animation-delay: 0.2s; }
+  .delay-5 { animation-delay: 0.25s; }
+  .delay-6 { animation-delay: 0.3s; }
+
+  @media (min-width: 431px) {
+    .app {
+      margin-top: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border-soft);
+      border-radius: 32px;
+      overflow: hidden;
+      min-height: calc(100vh - 48px);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar fade-up">
+    <button class="icon-btn" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="right">
+      <button class="icon-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Filter">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <section class="page-head fade-up delay-1">
+    <div class="page-tag">Train · 24 programmes</div>
+    <h1 class="page-title">Pick your<br><span class="accent">pressure.</span></h1>
+    <div class="page-sub">From single-session flows to 12-week blocks</div>
+  </section>
+
+  <a href="#" class="cont-card fade-up delay-2">
+    <div class="cont-label">Continuing · Week 3</div>
+    <div class="cont-title">Upper / Lower<br>4× Week</div>
+    <div class="cont-meta">
+      <span><strong>Intermediate</strong></span>
+      <span class="dot">·</span>
+      <span><strong>6 week</strong> block</span>
+      <span class="dot">·</span>
+      <span>Build</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 47%"></div>
+    </div>
+    <div class="progress-meta">
+      <span>Session 11 / 24</span>
+      <span class="pct">47% complete</span>
+    </div>
+    <div class="cont-bottom">
+      <div class="next-session">
+        Next up
+        <strong>Upper Push A · Today</strong>
+      </div>
+      <button class="resume-btn">
+        Resume
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </a>
+
+  <div class="chips fade-up delay-3">
+    <div class="chip active">All <span class="count">24</span></div>
+    <div class="chip">Build <span class="count">8</span></div>
+    <div class="chip">Golf <span class="count">5</span></div>
+    <div class="chip">Cable <span class="count">4</span></div>
+    <div class="chip">Cardio <span class="count">3</span></div>
+    <div class="chip">Stretch <span class="count">2</span></div>
+    <div class="chip">Recover <span class="count">2</span></div>
+  </div>
+
+  <div class="section-h fade-up delay-3">
+    <h3>Featured</h3>
+    <span class="meta">4 programmes</span>
+  </div>
+
+  <div class="featured fade-up delay-3">
+
+    <!-- Grieve 3 Releases -->
+    <a href="#" class="feat-card">
+      <span class="feat-badge">New</span>
+      <div class="feat-cover golf">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+          <!-- Three arcing lines suggesting golf club releases -->
+          <g stroke="#95BFE5" fill="none" stroke-width="1.2" opacity="0.85">
+            <path d="M20,180 Q100,20 180,180" stroke-dasharray="3 4"/>
+            <path d="M20,180 Q100,60 180,180" opacity="0.6"/>
+            <path d="M20,180 Q100,100 180,180" opacity="0.35"/>
+          </g>
+          <circle cx="100" cy="180" r="3" fill="#95BFE5"/>
+          <text x="20" y="30" fill="#8E8E94" font-family="monospace" font-size="9" letter-spacing="1.4">01·02·03</text>
+        </svg>
+      </div>
+      <div class="feat-info">
+        <div class="feat-tag">Golf · Grieve IP</div>
+        <div class="feat-title">3 Releases</div>
+        <div class="feat-meta">8 wks · 3/wk · All</div>
+      </div>
+    </a>
+
+    <!-- 5/3/1 BBB -->
+    <a href="#" class="feat-card">
+      <span class="feat-badge dark">Advanced</span>
+      <div class="feat-cover strength">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+          <!-- Stacked bars / plates -->
+          <g fill="none" stroke="#FAFAF5" stroke-width="2" opacity="0.9">
+            <line x1="40" y1="60" x2="160" y2="60"/>
+            <line x1="30" y1="90" x2="170" y2="90" opacity="0.75"/>
+            <line x1="50" y1="120" x2="150" y2="120" opacity="0.55"/>
+            <line x1="60" y1="150" x2="140" y2="150" opacity="0.35"/>
+          </g>
+          <g fill="#95BFE5">
+            <circle cx="100" cy="60" r="2.5"/>
+          </g>
+          <text x="20" y="188" fill="#8E8E94" font-family="monospace" font-size="9" letter-spacing="1.4">531·BBB</text>
+        </svg>
+      </div>
+      <div class="feat-info">
+        <div class="feat-tag">Build · Strength</div>
+        <div class="feat-title">5/3/1 BBB</div>
+        <div class="feat-meta">12 wks · 4/wk</div>
+      </div>
+    </a>
+
+    <!-- Zone 2 Builder -->
+    <a href="#" class="feat-card">
+      <div class="feat-cover cardio">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+          <!-- Cardio waveform -->
+          <g stroke="#FAFAF5" fill="none" stroke-width="1.5" opacity="0.7">
+            <path d="M0,100 Q25,80 50,100 T100,100 T150,100 T200,100"/>
+            <path d="M0,100 Q25,60 50,100 T100,100 T150,100 T200,100" opacity="0.45" stroke="#95BFE5"/>
+          </g>
+          <g stroke="#2A2A2E" stroke-width="0.5">
+            <line x1="0" y1="40" x2="200" y2="40"/>
+            <line x1="0" y1="140" x2="200" y2="140"/>
+          </g>
+          <text x="20" y="30" fill="#8E8E94" font-family="monospace" font-size="9" letter-spacing="1.4">ZONE·02</text>
+          <text x="20" y="188" fill="#8E8E94" font-family="monospace" font-size="9" letter-spacing="1.4">132–148 BPM</text>
+        </svg>
+      </div>
+      <div class="feat-info">
+        <div class="feat-tag">Cardio · Aerobic</div>
+        <div class="feat-title">Zone 2 Builder</div>
+        <div class="feat-meta">6 wks · 2/wk · All</div>
+      </div>
+    </a>
+
+    <!-- Lower Back Reset -->
+    <a href="#" class="feat-card">
+      <div class="feat-cover mobility">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+          <!-- Spine-like vertical dashes -->
+          <g stroke="#FAFAF5" fill="none" stroke-width="2" stroke-linecap="round" opacity="0.85">
+            <line x1="100" y1="30" x2="100" y2="40"/>
+            <line x1="100" y1="50" x2="100" y2="60"/>
+            <line x1="100" y1="70" x2="100" y2="80"/>
+            <line x1="100" y1="90" x2="100" y2="100"/>
+            <line x1="100" y1="110" x2="100" y2="120" stroke="#95BFE5"/>
+            <line x1="100" y1="130" x2="100" y2="140" stroke="#95BFE5"/>
+            <line x1="100" y1="150" x2="100" y2="160" stroke="#95BFE5"/>
+          </g>
+          <g stroke="#95BFE5" fill="none" stroke-width="0.7" opacity="0.4">
+            <circle cx="100" cy="135" r="30"/>
+            <circle cx="100" cy="135" r="45"/>
+          </g>
+          <text x="20" y="188" fill="#8E8E94" font-family="monospace" font-size="9" letter-spacing="1.4">L4·L5·S1</text>
+        </svg>
+      </div>
+      <div class="feat-info">
+        <div class="feat-tag">Stretch · Rehab</div>
+        <div class="feat-title">Lower Back Reset</div>
+        <div class="feat-meta">12 min · As needed</div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="section-h fade-up delay-4">
+    <h3>All Programmes</h3>
+    <span class="meta">Sort · Recent</span>
+  </div>
+
+  <div class="prog-list fade-up delay-4">
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#95BFE5" stroke-width="1.2" opacity="0.85"><path d="M5,46 Q26,5 47,46" stroke-dasharray="2 3"/><path d="M5,46 Q26,20 47,46" opacity="0.5"/></g><circle cx="26" cy="46" r="1.5" fill="#95BFE5"/></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Rotational Power</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Golf</span>
+          <span class="dot">·</span>
+          <span>Intermediate</span>
+          <span class="dot">·</span>
+          <strong>6 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><line x1="10" y1="16" x2="42" y2="16"/><line x1="8" y1="26" x2="44" y2="26"/><line x1="12" y1="36" x2="40" y2="36" opacity="0.6"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Push / Pull / Legs</span>
+          <span class="prog-mini-badge saved">Saved</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Build</span>
+          <span class="dot">·</span>
+          <span>Intermediate</span>
+          <span class="dot">·</span>
+          <strong>8 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" stroke-linecap="round" opacity="0.8"><path d="M6,26 Q14,18 22,26 T38,26 T52,26"/><path d="M6,36 Q14,30 22,36 T38,36 T52,36" opacity="0.5"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Cable Full Body</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Cable</span>
+          <span class="dot">·</span>
+          <span>All levels</span>
+          <span class="dot">·</span>
+          <strong>4 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#95BFE5" stroke-width="1.2" opacity="0.85"><circle cx="26" cy="26" r="16"/><circle cx="26" cy="26" r="10" opacity="0.55"/><circle cx="26" cy="26" r="4" opacity="0.35"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Golfer's T-Spine Flow</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Golf · Stretch</span>
+          <span class="dot">·</span>
+          <strong>Daily</strong>
+          <span class="dot">·</span>
+          <span>10 min</span>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><line x1="8" y1="14" x2="44" y2="14"/><line x1="8" y1="26" x2="44" y2="26" stroke="#95BFE5"/><line x1="8" y1="38" x2="44" y2="38" opacity="0.45"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Full Body 3×</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Build</span>
+          <span class="dot">·</span>
+          <span>Beginner</span>
+          <span class="dot">·</span>
+          <strong>6 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.4" stroke-linecap="round" opacity="0.8"><path d="M4,36 L14,20 L22,30 L32,12 L44,28 L48,22" stroke="#95BFE5"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">VO2 Max Intervals</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Cardio</span>
+          <span class="dot">·</span>
+          <span>Advanced</span>
+          <span class="dot">·</span>
+          <strong>4 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="2" stroke-linecap="round" opacity="0.8"><line x1="26" y1="10" x2="26" y2="14"/><line x1="26" y1="18" x2="26" y2="22"/><line x1="26" y1="26" x2="26" y2="30" stroke="#95BFE5"/><line x1="26" y1="34" x2="26" y2="38" stroke="#95BFE5"/><line x1="26" y1="42" x2="26" y2="46" stroke="#95BFE5"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Morning Mobility</span>
+          <span class="prog-mini-badge saved">Saved</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Stretch</span>
+          <span class="dot">·</span>
+          <strong>Daily</strong>
+          <span class="dot">·</span>
+          <span>8 min</span>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><rect x="8" y="8" width="36" height="36" rx="4"/><line x1="8" y1="26" x2="44" y2="26" stroke="#95BFE5"/><line x1="26" y1="8" x2="26" y2="44" stroke="#95BFE5" opacity="0.4"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Travel Cable Circuit</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Cable</span>
+          <span class="dot">·</span>
+          <span>All levels</span>
+          <span class="dot">·</span>
+          <strong>Ongoing</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><circle cx="16" cy="26" r="6"/><circle cx="36" cy="26" r="6" stroke="#95BFE5"/><path d="M22,26 L30,26" stroke-linecap="round"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Contrast Therapy</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Recover</span>
+          <span class="dot">·</span>
+          <strong>As needed</strong>
+          <span class="dot">·</span>
+          <span>24 min</span>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><path d="M26,6 Q10,18 10,30 Q10,44 26,44 Q42,44 42,30 Q42,18 26,6Z"/><path d="M22,44 L30,44" stroke="#95BFE5" stroke-width="2"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Sauna + Steam Flow</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Recover</span>
+          <span class="dot">·</span>
+          <strong>Weekly</strong>
+          <span class="dot">·</span>
+          <span>30 min</span>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.4" opacity="0.85"><line x1="8" y1="40" x2="8" y2="28"/><line x1="18" y1="40" x2="18" y2="18" stroke="#95BFE5"/><line x1="28" y1="40" x2="28" y2="22"/><line x1="38" y1="40" x2="38" y2="12" stroke="#95BFE5"/><line x1="48" y1="40" x2="48" y2="26"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">German Volume Training</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Build · Hypertrophy</span>
+          <span class="dot">·</span>
+          <span>Intermediate</span>
+          <span class="dot">·</span>
+          <strong>6 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#95BFE5" stroke-width="1.2" opacity="0.85"><path d="M10,40 Q26,10 42,40" stroke-dasharray="3 2"/></g><circle cx="26" cy="40" r="1.5" fill="#95BFE5"/><circle cx="14" cy="36" r="1" fill="#FAFAF5" opacity="0.5"/><circle cx="38" cy="36" r="1" fill="#FAFAF5" opacity="0.5"/></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Single-Leg Stability</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Golf · Build</span>
+          <span class="dot">·</span>
+          <span>All levels</span>
+          <span class="dot">·</span>
+          <strong>4 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><path d="M8,40 Q16,18 26,26 Q36,34 44,14" stroke="#95BFE5"/><line x1="8" y1="46" x2="44" y2="46" stroke-width="0.8" opacity="0.3"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Recovery Cardio</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Cardio · Zone 1</span>
+          <span class="dot">·</span>
+          <span>All</span>
+          <span class="dot">·</span>
+          <strong>Ongoing</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.5" opacity="0.85"><path d="M26,10 L26,42" stroke="#95BFE5"/><path d="M16,20 Q26,26 36,20" opacity="0.6"/><path d="M14,30 Q26,38 38,30" opacity="0.45"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Desk Worker Decompression</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Stretch · Rehab</span>
+          <span class="dot">·</span>
+          <strong>Daily</strong>
+          <span class="dot">·</span>
+          <span>6 min</span>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.4" opacity="0.85"><line x1="12" y1="38" x2="40" y2="38"/><line x1="12" y1="30" x2="40" y2="30" opacity="0.7" stroke="#95BFE5"/><line x1="12" y1="22" x2="40" y2="22" opacity="0.5"/><line x1="12" y1="14" x2="40" y2="14" opacity="0.3"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Starting Strength</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Build · Novice</span>
+          <span class="dot">·</span>
+          <span>Beginner</span>
+          <span class="dot">·</span>
+          <strong>8 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#95BFE5" stroke-width="1.2" opacity="0.7"><circle cx="26" cy="26" r="18" stroke-dasharray="4 3"/></g><text x="20" y="31" fill="#FAFAF5" font-family="'Barlow Condensed'" font-weight="900" font-size="14">A+</text></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Arms Blaster</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Build · Hypertrophy</span>
+          <span class="dot">·</span>
+          <span>Intermediate</span>
+          <span class="dot">·</span>
+          <strong>4 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#FAFAF5" stroke-width="1.4" opacity="0.85"><path d="M12,14 L40,14 L40,38 L12,38 Z" opacity="0.5"/><path d="M18,22 L34,22" stroke="#95BFE5"/><path d="M18,28 L34,28" stroke="#95BFE5" opacity="0.6"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Chest Specialisation</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Build · Hypertrophy</span>
+          <span class="dot">·</span>
+          <span>Intermediate</span>
+          <span class="dot">·</span>
+          <strong>6 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="prog-row">
+      <div class="prog-thumb">
+        <svg viewBox="0 0 52 52"><g fill="none" stroke="#95BFE5" stroke-width="1.2"><path d="M8,44 Q8,22 26,22 Q44,22 44,44" opacity="0.4"/><path d="M12,44 Q12,28 26,28 Q40,28 40,44" opacity="0.6"/><path d="M18,44 Q18,34 26,34 Q34,34 34,44"/></g></svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title-row">
+          <span class="prog-title">Golf Walking Prep</span>
+        </div>
+        <div class="prog-meta">
+          <span class="tag">Cardio · Golf</span>
+          <span class="dot">·</span>
+          <span>All</span>
+          <span class="dot">·</span>
+          <strong>4 wks</strong>
+        </div>
+      </div>
+      <div class="prog-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <a href="#" class="ai-build fade-up delay-6">
+    <div class="ai-build-label">AI Coach · Custom programme</div>
+    <h3>Can't find it?<br><span class="accent">Build it.</span></h3>
+    <p>Describe your goal, schedule and equipment — AI Coach generates a bespoke programme tuned to your history.</p>
+    <span class="btn">
+      Build with AI
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+
+</div>
+
+<script>
+  // Filter chip interaction
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  // Prevent # navigation
+  document.querySelectorAll('a[href="#"]').forEach(a => a.onclick = e => e.preventDefault());
+</script>
+
+</body>
+</html>

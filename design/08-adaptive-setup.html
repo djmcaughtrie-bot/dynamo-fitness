@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Adaptive Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+    --accent: #95BFE5;
+    --warm: #E8B473;
+    --orange: #FF7A3D;
+    --green: #3CE89C;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "tnum";
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    opacity: 0.04; z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+  .app {
+    max-width: 430px; margin: 0 auto; min-height: 100vh;
+    position: relative; padding-bottom: 60px; background: var(--bg);
+    overflow-x: hidden;
+  }
+
+  /* Top */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; position: sticky; top: 0;
+    background: var(--bg); z-index: 10;
+  }
+  .icon-btn {
+    width: 40px; height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); cursor: pointer;
+  }
+  .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* Page head */
+  .page-head { padding: 14px 22px 22px; }
+  .page-tag {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.22em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .page-tag::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 900; font-size: 60px;
+    line-height: 0.88; letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+  .page-title .accent { color: var(--accent); font-style: italic; }
+  .page-sub {
+    font-size: 13.5px; color: var(--text-dim);
+    line-height: 1.5; margin-top: 12px;
+    max-width: 36ch;
+  }
+
+  /* Master toggle */
+  .master {
+    margin: 0 22px 28px;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(149,191,229,0.1), transparent 55%),
+      var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.22);
+    border-radius: 22px;
+    padding: 20px 22px;
+    display: flex; align-items: center; gap: 16px;
+    position: relative; overflow: hidden;
+  }
+  .master::before {
+    content: ''; position: absolute;
+    left: 0; top: 20px; bottom: 20px; width: 3px;
+    background: var(--accent);
+  }
+  .master-info { flex: 1; min-width: 0; }
+  .master-title {
+    font-family: var(--font-display);
+    font-weight: 900; font-size: 26px;
+    text-transform: uppercase; letter-spacing: -0.01em;
+    line-height: 1; margin-bottom: 6px;
+  }
+  .master-title .pill {
+    display: inline-block;
+    background: var(--accent); color: #000;
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 600;
+    padding: 3px 7px; border-radius: 4px;
+    margin-left: 8px; letter-spacing: 0.14em;
+    vertical-align: middle;
+  }
+  .master-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .toggle {
+    width: 52px; height: 30px;
+    background: var(--surface-3);
+    border-radius: 100px;
+    position: relative; cursor: pointer;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; position: absolute;
+    left: 3px; top: 3px;
+    width: 24px; height: 24px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    transition: left 0.25s, background 0.25s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle.on::after { left: 25px; background: #fff; }
+
+  /* Section */
+  .section-h {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0 22px; margin: 0 0 12px;
+  }
+  .section-h h3 {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 18px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-h h3::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .section-h .meta {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+
+  /* Card */
+  .card {
+    margin: 0 22px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .card-desc {
+    padding: 14px 18px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  /* Profile pill cards */
+  .profile-list {
+    padding: 14px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .profile {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .profile.active {
+    background: linear-gradient(135deg, rgba(149,191,229,0.06), transparent 60%), var(--surface-2);
+    border-color: rgba(149, 191, 229, 0.3);
+  }
+  .profile-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--warm);
+    flex-shrink: 0;
+  }
+  .profile.active .profile-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .profile-info { flex: 1; min-width: 0; }
+  .profile-name {
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 2px;
+    letter-spacing: -0.005em;
+  }
+  .profile-meta {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .profile-edit {
+    background: none; border: none;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .add-btn {
+    width: 100%;
+    background: var(--surface-3);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .add-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Chip row */
+  .chip-wrap {
+    padding: 14px 16px;
+    display: flex; flex-wrap: wrap; gap: 7px;
+  }
+  .chip {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 9px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip.on {
+    background: var(--accent); color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .chip.severe { border-left-width: 3px; padding-left: 12px; border-left-color: var(--orange); }
+
+  /* List row */
+  .list-row {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    border-top: 1px solid var(--border-soft);
+    gap: 14px;
+  }
+  .list-row:first-child { border-top: none; }
+  .list-row-main { flex: 1; min-width: 0; }
+  .list-row-title {
+    font-size: 14px; font-weight: 500;
+    letter-spacing: -0.005em; margin-bottom: 3px;
+  }
+  .list-row-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* Number input */
+  .num-input {
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .num-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .num-val {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 20px;
+    min-width: 46px; text-align: center;
+    letter-spacing: -0.01em;
+  }
+  .num-val .u {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-left: 2px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  /* Facility tiles */
+  .facility-grid {
+    padding: 14px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .facility {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .facility.on {
+    background: linear-gradient(135deg, rgba(149,191,229,0.06), transparent 60%), var(--surface-2);
+    border-color: rgba(149, 191, 229, 0.3);
+  }
+  .facility-icon {
+    width: 32px; height: 32px;
+    background: var(--surface-3);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .facility.on .facility-icon { background: var(--accent); color: #000; }
+  .facility-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .facility-label {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 15px;
+    text-transform: uppercase; letter-spacing: -0.005em;
+    line-height: 1;
+  }
+  .facility-check {
+    margin-left: auto;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .facility.on .facility-check { background: var(--accent); border-color: var(--accent); }
+  .facility.on .facility-check::after {
+    content: ''; width: 6px; height: 6px;
+    background: #000; border-radius: 50%;
+  }
+
+  /* Sensitivity radio */
+  .sens-radio {
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .sens-opt {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sens-opt.on {
+    background: linear-gradient(135deg, rgba(149,191,229,0.06), transparent 60%), var(--surface-2);
+    border-color: rgba(149, 191, 229, 0.3);
+  }
+  .sens-radio-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .sens-opt.on .sens-radio-dot { border-color: var(--accent); }
+  .sens-opt.on .sens-radio-dot::after {
+    content: ''; position: absolute;
+    inset: 3px; background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent);
+  }
+  .sens-opt-main { flex: 1; }
+  .sens-opt-title {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 17px;
+    text-transform: uppercase; letter-spacing: -0.005em;
+    line-height: 1; margin-bottom: 4px;
+  }
+  .sens-opt-sub {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  /* Report CTA */
+  .report-cta {
+    margin: 8px 22px 0;
+    padding: 20px;
+    background:
+      radial-gradient(circle at 110% -10%, rgba(149,191,229,0.08), transparent 55%),
+      var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.2);
+    border-radius: 20px;
+    display: block; color: inherit; text-decoration: none;
+  }
+  .report-label {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--accent);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 10px;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .report-label::before { content: '◆'; font-size: 9px; }
+  .report-title {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 24px;
+    line-height: 1.05;
+    text-transform: uppercase; letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .report-desc {
+    font-size: 12.5px; color: var(--text-dim);
+    line-height: 1.5; margin-bottom: 14px;
+    max-width: 38ch;
+  }
+  .report-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #000;
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 10px 14px; border-radius: 10px;
+  }
+  .report-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.4; }
+
+  .footer-note {
+    padding: 20px 22px 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    line-height: 1.7;
+    text-align: center;
+    max-width: 36ch;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <button class="icon-btn" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="icon-btn" aria-label="Help">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17v.01" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <section class="page-head">
+    <div class="page-tag">Settings · training</div>
+    <h1 class="page-title">Adaptive<br><span class="accent">mode.</span></h1>
+    <div class="page-sub">The app flexes with what your body is doing. Configure what it watches for and how much it intervenes.</div>
+  </section>
+
+  <!-- Master toggle -->
+  <div class="master">
+    <div class="master-info">
+      <div class="master-title">On<span class="pill">Active</span></div>
+      <div class="master-sub">Last tuned · 17 Apr</div>
+    </div>
+    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+  </div>
+
+  <!-- Profiles -->
+  <div class="section-h">
+    <h3>Considerations</h3>
+    <span class="meta">Your profile</span>
+  </div>
+  <div class="card">
+    <div class="card-desc">What the app is accommodating. Not medical advice — just signals to shape your plan around.</div>
+    <div class="profile-list">
+      <div class="profile active">
+        <div class="profile-dot"></div>
+        <div class="profile-info">
+          <div class="profile-name">Chronic inflammation · gout</div>
+          <div class="profile-meta">Flare-aware · 4 joints tracked</div>
+        </div>
+        <button class="profile-edit">Edit</button>
+      </div>
+      <div class="profile active">
+        <div class="profile-dot"></div>
+        <div class="profile-info">
+          <div class="profile-name">Lower back sensitivity</div>
+          <div class="profile-meta">Desk-based work · avoid loaded compression</div>
+        </div>
+        <button class="profile-edit">Edit</button>
+      </div>
+      <button class="add-btn">+ Add a consideration</button>
+    </div>
+  </div>
+
+  <!-- Joints tracked -->
+  <div class="section-h">
+    <h3>Tracked joints</h3>
+    <span class="meta">Shown in check-in</span>
+  </div>
+  <div class="card">
+    <div class="card-desc">Joints the morning check-in asks about. Severe flares in any of these defer loaded sessions automatically.</div>
+    <div class="chip-wrap">
+      <div class="chip on severe">Big toe · L</div>
+      <div class="chip on">Ankle · L</div>
+      <div class="chip on">Knee · L</div>
+      <div class="chip on">Knee · R</div>
+      <div class="chip on">Hands</div>
+      <div class="chip on">Lower back</div>
+      <div class="chip">Wrists</div>
+      <div class="chip">Hips</div>
+      <div class="chip">Shoulders</div>
+      <div class="chip">Elbows</div>
+      <div class="chip">+ Custom</div>
+    </div>
+  </div>
+
+  <!-- Triggers -->
+  <div class="section-h">
+    <h3>Triggers watched</h3>
+    <span class="meta">For correlation</span>
+  </div>
+  <div class="card">
+    <div class="card-desc">Logged alongside flares so you can spot patterns over time. Shown as an optional step after any new flare.</div>
+    <div class="chip-wrap">
+      <div class="chip on">Alcohol</div>
+      <div class="chip on">Red meat</div>
+      <div class="chip on">Shellfish</div>
+      <div class="chip on">Sugary drinks</div>
+      <div class="chip on">Dehydration</div>
+      <div class="chip on">Travel</div>
+      <div class="chip on">Heat exposure</div>
+      <div class="chip on">Poor sleep</div>
+      <div class="chip on">Intense session</div>
+      <div class="chip on">Stress</div>
+      <div class="chip on">Missed dose</div>
+      <div class="chip">+ Custom</div>
+    </div>
+  </div>
+
+  <!-- Hydration targets -->
+  <div class="section-h">
+    <h3>Hydration</h3>
+    <span class="meta">Daily targets</span>
+  </div>
+  <div class="card">
+    <div class="list-row">
+      <div class="list-row-main">
+        <div class="list-row-title">Baseline target</div>
+        <div class="list-row-sub">Normal days</div>
+      </div>
+      <div class="num-input">
+        <button class="num-btn">−</button>
+        <div class="num-val">2.5<span class="u">L</span></div>
+        <button class="num-btn">+</button>
+      </div>
+    </div>
+    <div class="list-row">
+      <div class="list-row-main">
+        <div class="list-row-title">Flare target</div>
+        <div class="list-row-sub">Auto-lifted during active flares</div>
+      </div>
+      <div class="num-input">
+        <button class="num-btn">−</button>
+        <div class="num-val">3.0<span class="u">L</span></div>
+        <button class="num-btn">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Facilities -->
+  <div class="section-h">
+    <h3>Facilities</h3>
+    <span class="meta">What's available</span>
+  </div>
+  <div class="card">
+    <div class="card-desc">Low-impact options promoted on flare days. Pool offloads affected joints entirely — prioritised when available.</div>
+    <div class="facility-grid">
+      <div class="facility on" onclick="this.classList.toggle('on')">
+        <div class="facility-icon">
+          <svg viewBox="0 0 24 24"><path d="M2 12c3 0 3 3 6 3s3-3 6-3 3 3 6 3 3-3 4-3M2 17c3 0 3 3 6 3s3-3 6-3 3 3 6 3 3-3 4-3"/></svg>
+        </div>
+        <div class="facility-label">Pool</div>
+        <div class="facility-check"></div>
+      </div>
+      <div class="facility on" onclick="this.classList.toggle('on')">
+        <div class="facility-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7c0 3 2 5 2 8h10c0-3 2-5 2-8a7 7 0 0 0-7-7zM9 20h6"/></svg>
+        </div>
+        <div class="facility-label">Sauna</div>
+        <div class="facility-check"></div>
+      </div>
+      <div class="facility on" onclick="this.classList.toggle('on')">
+        <div class="facility-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 10s2 2 4 2 4-2 4-2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="facility-label">Steam</div>
+        <div class="facility-check"></div>
+      </div>
+      <div class="facility on" onclick="this.classList.toggle('on')">
+        <div class="facility-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg>
+        </div>
+        <div class="facility-label">Home gym</div>
+        <div class="facility-check"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sensitivity -->
+  <div class="section-h">
+    <h3>Intervention</h3>
+    <span class="meta">How much the app overrides</span>
+  </div>
+  <div class="card">
+    <div class="card-desc">How readily the app swaps your planned session for an adapted one. You can always override on the day.</div>
+    <div class="sens-radio">
+      <div class="sens-opt">
+        <div class="sens-radio-dot"></div>
+        <div class="sens-opt-main">
+          <div class="sens-opt-title">Hands Off</div>
+          <div class="sens-opt-sub">Suggests only · never changes the plan</div>
+        </div>
+      </div>
+      <div class="sens-opt on">
+        <div class="sens-radio-dot"></div>
+        <div class="sens-opt-main">
+          <div class="sens-opt-title">Balanced</div>
+          <div class="sens-opt-sub">Swaps on severe flags · asks on mild</div>
+        </div>
+      </div>
+      <div class="sens-opt">
+        <div class="sens-radio-dot"></div>
+        <div class="sens-opt-main">
+          <div class="sens-opt-title">Protective</div>
+          <div class="sens-opt-sub">Swaps on any flag · prioritises recovery</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Behaviour toggles -->
+  <div class="section-h">
+    <h3>Behaviour</h3>
+    <span class="meta">Defaults</span>
+  </div>
+  <div class="card">
+    <div class="list-row">
+      <div class="list-row-main">
+        <div class="list-row-title">Reschedule missed sessions</div>
+        <div class="list-row-sub">Auto-shift programme instead of marking skipped</div>
+      </div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="list-row">
+      <div class="list-row-main">
+        <div class="list-row-title">Rest counts toward streak</div>
+        <div class="list-row-sub">Check-in + hydration = active day</div>
+      </div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="list-row">
+      <div class="list-row-main">
+        <div class="list-row-title">Hide PR prompts during flare</div>
+        <div class="list-row-sub">Don't suggest pushing new numbers</div>
+      </div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="list-row">
+      <div class="list-row-main">
+        <div class="list-row-title">Morning check-in reminder</div>
+        <div class="list-row-sub">07:30 · Mon to Sun</div>
+      </div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+  </div>
+
+  <!-- Reports -->
+  <a href="#" class="report-cta">
+    <div class="report-label">Shareable report</div>
+    <div class="report-title">GP-friendly export</div>
+    <div class="report-desc">12 months of flare history, triggers and adherence — formatted for a medical appointment. Generated on demand.</div>
+    <span class="report-btn">
+      Generate PDF
+      <svg viewBox="0 0 24 24"><path d="M12 4v12M6 10l6-6 6 6M5 20h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+
+  <div class="footer-note">
+    FitTrack doesn't replace medical advice. Adaptive Mode adjusts training based on what you log — discuss changes with your GP.
+  </div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+  document.querySelectorAll('.sens-opt').forEach(s => {
+    s.addEventListener('click', () => {
+      document.querySelectorAll('.sens-opt').forEach(x => x.classList.remove('on'));
+      s.classList.add('on');
+    });
+  });
+  document.querySelectorAll('a[href="#"]').forEach(a => a.onclick = e => e.preventDefault());
+</script>
+
+</body>
+</html>

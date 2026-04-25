@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     DESIGN TOKENS — core system
+     ============================================ */
+  :root {
+    /* Surfaces */
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+
+    /* Borders */
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+
+    /* Text */
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+
+    /* Brand accent */
+    --accent: #95BFE5;
+    --accent-dim: #6FA0CC;
+
+    /* Semantic (use sparingly — accent does the heavy lifting) */
+    --warm: #E8B473;      /* flags, mild warnings */
+    --orange: #FF7A3D;    /* alerts, active flares, countdown warning */
+    --green: #3CE89C;     /* success, completion, PRs */
+    --red: #FF4A5E;       /* destructive only */
+
+    /* Fonts */
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+
+    /* Radii */
+    --r-xs: 4px;
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    --r-xl: 20px;
+    --r-2xl: 24px;
+    --r-pill: 100px;
+
+    /* Spacing (4px scale, primary rhythm) */
+    --s-1: 4px;
+    --s-2: 8px;
+    --s-3: 12px;
+    --s-4: 16px;
+    --s-5: 20px;
+    --s-6: 22px;   /* default screen padding */
+    --s-7: 28px;
+    --s-8: 32px;
+
+    /* Motion */
+    --ease: cubic-bezier(.2,.8,.2,1);
+    --dur-fast: 0.15s;
+    --dur-med: 0.35s;
+    --dur-slow: 0.6s;
+  }
+
+  /* ============================================
+     BASE
+     ============================================ */
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "tnum";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* ============================================
+     PAGE STRUCTURE
+     ============================================ */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 22px; height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(56px, 9vw, 96px);
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero-title .accent { color: var(--accent); font-style: italic; }
+
+  .hero-lead {
+    font-size: 16px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    max-width: 60ch;
+    margin-bottom: 28px;
+  }
+  .hero-lead code { font-family: var(--font-mono); color: var(--accent); font-size: 13px; }
+
+  .meta-row {
+    display: flex; gap: 20px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-wrap: wrap;
+  }
+  .meta-row strong { color: var(--text); font-weight: 500; }
+
+  /* Section nav chips */
+  .nav-chips {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin: 48px 0 40px;
+    padding: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-pill);
+    position: sticky; top: 20px;
+    z-index: 5;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-chips a {
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all var(--dur-fast);
+  }
+  .nav-chips a:hover { color: var(--text); background: var(--surface-2); }
+
+  /* Section head */
+  section { margin-bottom: 72px; scroll-margin-top: 90px; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border-soft);
+    flex-wrap: wrap; gap: 14px;
+  }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 42px;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-head h2::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+  }
+  .section-head .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h3.sub {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 40px 0 16px;
+    color: var(--text);
+  }
+
+  /* Spec card — the frame that wraps each component preview */
+  .spec {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .spec-stage {
+    padding: 36px;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(255,255,255,0.02), transparent 50%),
+      var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 18px;
+    min-height: 120px;
+  }
+  .spec-stage.tight { padding: 20px; min-height: 80px; }
+  .spec-stage.stack { flex-direction: column; align-items: stretch; }
+  .spec-meta {
+    padding: 14px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .spec-name {
+    color: var(--text);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .spec-tokens {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .spec-tokens code {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 10px;
+    padding: 1px 5px;
+    background: rgba(149,191,229,0.06);
+    border-radius: 3px;
+    margin: 0 1px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 780px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ============================================
+     TOKEN SPECIMENS
+     ============================================ */
+  .swatch {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-md);
+    padding: 14px;
+    display: flex; gap: 14px; align-items: center;
+  }
+  .swatch-chip {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .swatch-info { min-width: 0; flex: 1; }
+  .swatch-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 17px;
+    line-height: 1; letter-spacing: -0.005em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .swatch-code {
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+  }
+  .swatch-hex { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.06em; }
+
+  .type-row {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    padding: 22px 24px;
+    margin-bottom: 10px;
+    display: grid; grid-template-columns: 140px 1fr;
+    gap: 20px; align-items: center;
+  }
+  .type-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .type-label strong { color: var(--accent); display: block; font-weight: 500; margin-top: 3px; }
+  .type-sample { overflow: hidden; }
+
+  .space-bars { display: flex; flex-direction: column; gap: 10px; }
+  .space-row {
+    display: grid; grid-template-columns: 80px 1fr 80px;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-dim); letter-spacing: 0.06em;
+  }
+  .space-bar { height: 10px; background: var(--accent); border-radius: 2px; opacity: 0.85; }
+  .space-row .val { text-align: right; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .radius-demo {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  .radius-box {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--surface-3), var(--surface-2));
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    gap: 3px;
+    padding: 6px;
+    text-align: center;
+  }
+  .radius-box strong { color: var(--accent); font-weight: 500; }
+
+  /* ============================================
+     COMPONENT LIVE SAMPLES
+     ============================================ */
+
+  /* --- Cards --- */
+  .card-base {
+    width: 100%; max-width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-xl);
+    padding: 20px;
+  }
+  .card-accent {
+    width: 100%; max-width: 360px;
+    background:
+      radial-gradient(circle at 110% -10%, rgba(149,191,229,0.1), transparent 55%),
+      var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.22);
+    border-radius: var(--r-xl);
+    padding: 20px 22px 20px 26px;
+    position: relative; overflow: hidden;
+  }
+  .card-accent::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20px; bottom: 20px; width: 3px;
+    background: var(--accent);
+  }
+  .card-label {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 28px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+  }
+
+  /* --- Buttons --- */
+  .btn-primary {
+    background: var(--accent); color: #000;
+    border: none; border-radius: var(--r-md);
+    padding: 14px 20px;
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 18px;
+    text-transform: uppercase; letter-spacing: 0.02em;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 10px;
+    box-shadow: 0 6px 20px rgba(149, 191, 229, 0.2);
+  }
+  .btn-primary svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+
+  .btn-secondary {
+    background: var(--surface-3); color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 13px 18px;
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .icon-btn-demo {
+    width: 40px; height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+  .icon-btn-demo svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .btn-cta-full {
+    background: var(--accent); color: #000;
+    border: none; border-radius: var(--r-lg);
+    padding: 18px;
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 20px;
+    text-transform: uppercase; letter-spacing: 0.02em;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 8px 24px rgba(149, 191, 229, 0.2);
+    width: 100%; max-width: 360px;
+  }
+  .btn-cta-full svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+
+  /* --- Chips --- */
+  .chip-demo {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-pill);
+    padding: 9px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chip-demo.on { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .chip-demo .count {
+    background: var(--surface-3);
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
+  .chip-demo.on .count { background: rgba(0,0,0,0.15); color: #000; }
+
+  /* --- Section header pattern --- */
+  .sh-demo {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; max-width: 360px;
+  }
+  .sh-demo h4 {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 18px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sh-demo h4::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--accent); border-radius: 50%;
+  }
+  .sh-demo a {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.14em; text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* --- Eyebrow variant --- */
+  .eyebrow-demo {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.22em; text-transform: uppercase;
+  }
+  .eyebrow-demo::before {
+    content: ''; width: 20px; height: 1px;
+    background: var(--accent);
+  }
+
+  /* --- Option card --- */
+  .opt-demo {
+    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; max-width: 360px;
+    cursor: pointer;
+  }
+  .opt-demo.selected {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(149,191,229,0.08), transparent 55%), var(--surface-2);
+  }
+  .opt-icon {
+    width: 44px; height: 44px;
+    background: var(--surface-3);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  .opt-demo.selected .opt-icon { background: var(--accent); color: #000; }
+  .opt-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .opt-info { flex: 1; min-width: 0; }
+  .opt-title {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 22px;
+    line-height: 1; letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .opt-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .opt-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .opt-demo.selected .opt-check { background: var(--accent); border-color: var(--accent); }
+  .opt-check svg {
+    width: 12px; height: 12px;
+    stroke: #000; fill: none; stroke-width: 3;
+    stroke-linecap: round; stroke-linejoin: round;
+    opacity: 0;
+  }
+  .opt-demo.selected .opt-check svg { opacity: 1; }
+
+  /* --- Toggle --- */
+  .toggle-demo {
+    width: 52px; height: 30px;
+    background: var(--surface-3);
+    border-radius: var(--r-pill);
+    position: relative; cursor: pointer;
+    transition: background var(--dur-med);
+  }
+  .toggle-demo::after {
+    content: ''; position: absolute;
+    left: 3px; top: 3px;
+    width: 24px; height: 24px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    transition: left var(--dur-med), background var(--dur-med);
+  }
+  .toggle-demo.on { background: var(--accent); }
+  .toggle-demo.on::after { left: 25px; background: #fff; }
+
+  /* --- Scale segment --- */
+  .scale-demo {
+    display: flex; gap: 5px;
+    width: 100%; max-width: 280px;
+  }
+  .scale-seg-demo {
+    flex: 1; height: 34px;
+    background: var(--surface-3);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  .scale-seg-demo.active {
+    background: var(--accent); color: #000; font-weight: 600;
+  }
+  .scale-seg-demo.filled {
+    background: rgba(149, 191, 229, 0.12);
+    color: var(--text-dim);
+  }
+
+  /* --- Stepper --- */
+  .stepper-demo {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step-btn-demo {
+    width: 44px; height: 44px;
+    border-radius: var(--r-md);
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-val-demo {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    min-width: 80px; text-align: center;
+  }
+  .step-val-demo .unit {
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--text-dim);
+    font-weight: 500; letter-spacing: 0.08em;
+    margin-left: 3px;
+    text-transform: uppercase;
+  }
+
+  /* --- Progress --- */
+  .progress-demo {
+    width: 100%; max-width: 360px;
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill-demo {
+    height: 100%;
+    background: var(--accent);
+    width: 47%;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(149,191,229,0.4);
+  }
+
+  /* --- KPI cell --- */
+  .kpi-demo {
+    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-md);
+    padding: 14px;
+    min-width: 130px;
+  }
+  .kpi-demo .l {
+    font-family: var(--font-mono);
+    font-size: 9.5px; color: var(--text-muted);
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .kpi-demo .v {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 28px;
+    line-height: 1; letter-spacing: -0.015em;
+  }
+  .kpi-demo .v .u {
+    font-size: 12px; color: var(--text-dim);
+    font-weight: 600; margin-left: 2px;
+  }
+  .kpi-demo .d {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--accent);
+    letter-spacing: 0.08em; margin-top: 5px;
+  }
+
+  /* --- Status chip --- */
+  .status-demo {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: rgba(149, 191, 229, 0.08);
+    border: 1px solid rgba(149, 191, 229, 0.25);
+    border-radius: var(--r-pill);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .status-demo::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--accent); border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  /* --- Lane divider --- */
+  .lanes-demo {
+    width: 100%; max-width: 360px;
+    height: 18px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0, transparent 10px,
+      var(--border) 10px, var(--border) 22px
+    );
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  }
+
+  /* --- Sparkline --- */
+  .spark-demo {
+    width: 200px; height: 60px;
+  }
+  .spark-demo svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* --- Bar + target --- */
+  .bal-demo {
+    width: 100%; max-width: 320px;
+    display: grid;
+    grid-template-columns: 70px 1fr 34px;
+    gap: 10px; align-items: center;
+  }
+  .bal-name-demo {
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .bal-bar-wrap-demo {
+    position: relative; height: 10px;
+    background: var(--surface-3);
+    border-radius: 3px; overflow: hidden;
+  }
+  .bal-bar-demo {
+    height: 100%; background: var(--accent);
+    border-radius: 3px; width: 72%;
+  }
+  .bal-target-demo {
+    position: absolute;
+    top: -3px; bottom: -3px;
+    width: 1.5px; background: var(--text-dim);
+    left: 75%; opacity: 0.6;
+  }
+  .bal-target-demo::after {
+    content: ''; position: absolute;
+    top: -3px; left: -2px;
+    width: 5.5px; height: 3px;
+    background: var(--text-dim); opacity: 0.8;
+  }
+  .bal-count-demo {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--text); font-weight: 500;
+  }
+
+  /* --- Code block --- */
+  .code {
+    background: #07070A;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    overflow-x: auto;
+    white-space: pre;
+    letter-spacing: 0.02em;
+  }
+  .code .k { color: var(--accent); }
+  .code .c { color: var(--text-muted); }
+  .code .s { color: var(--warm); }
+  .code .p { color: var(--text); }
+
+  /* Grids for specific sections */
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  /* Two-col chart sample rows */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 780px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Link for footer */
+  .footer-meta {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex; justify-content: space-between; flex-wrap: wrap;
+    gap: 14px;
+  }
+  .footer-meta strong { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===== HERO ===== -->
+  <header>
+    <div class="eyebrow">FitTrack · Design System · v0.1</div>
+    <h1 class="hero-title">The<br><span class="accent">system.</span></h1>
+    <p class="hero-lead">Every token, component, and pattern used across the seven screens — built for porting to your React PWA. Inspect the DOM to lift any component directly; tokens live in <code>:root</code> at the top of this file.</p>
+    <div class="meta-row">
+      <span>Typography · <strong>3 families</strong></span>
+      <span>Colours · <strong>17 tokens</strong></span>
+      <span>Components · <strong>18 patterns</strong></span>
+      <span>Screens built · <strong>07</strong></span>
+    </div>
+  </header>
+
+  <nav class="nav-chips">
+    <a href="#tokens">Tokens</a>
+    <a href="#typography">Typography</a>
+    <a href="#spacing">Spacing</a>
+    <a href="#components">Components</a>
+    <a href="#data">Data viz</a>
+    <a href="#patterns">Patterns</a>
+    <a href="#port">Porting</a>
+  </nav>
+
+  <!-- ===== TOKENS / COLOUR ===== -->
+  <section id="tokens">
+    <div class="section-head">
+      <h2>Colour</h2>
+      <span class="count">17 tokens · one accent · 4 semantic</span>
+    </div>
+
+    <h3 class="sub">Surfaces</h3>
+    <div class="grid-3">
+      <div class="swatch"><div class="swatch-chip" style="background:#0B0B0C;"></div><div class="swatch-info"><div class="swatch-name">Background</div><div class="swatch-code">--bg</div><div class="swatch-hex">#0B0B0C</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#141416;"></div><div class="swatch-info"><div class="swatch-name">Surface</div><div class="swatch-code">--surface</div><div class="swatch-hex">#141416</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#1B1B1E;"></div><div class="swatch-info"><div class="swatch-name">Surface 2</div><div class="swatch-code">--surface-2</div><div class="swatch-hex">#1B1B1E</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#26262A;"></div><div class="swatch-info"><div class="swatch-name">Surface 3</div><div class="swatch-code">--surface-3</div><div class="swatch-hex">#26262A</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#2A2A2E;"></div><div class="swatch-info"><div class="swatch-name">Border</div><div class="swatch-code">--border</div><div class="swatch-hex">#2A2A2E</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#1E1E22;"></div><div class="swatch-info"><div class="swatch-name">Border soft</div><div class="swatch-code">--border-soft</div><div class="swatch-hex">#1E1E22</div></div></div>
+    </div>
+
+    <h3 class="sub">Text</h3>
+    <div class="grid-3">
+      <div class="swatch"><div class="swatch-chip" style="background:#FAFAF5;"></div><div class="swatch-info"><div class="swatch-name">Text</div><div class="swatch-code">--text</div><div class="swatch-hex">#FAFAF5</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#8E8E94;"></div><div class="swatch-info"><div class="swatch-name">Dim</div><div class="swatch-code">--text-dim</div><div class="swatch-hex">#8E8E94</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#54545A;"></div><div class="swatch-info"><div class="swatch-name">Muted</div><div class="swatch-code">--text-muted</div><div class="swatch-hex">#54545A</div></div></div>
+    </div>
+
+    <h3 class="sub">Accent</h3>
+    <div class="grid-2">
+      <div class="swatch"><div class="swatch-chip" style="background:#95BFE5;"></div><div class="swatch-info"><div class="swatch-name">Accent</div><div class="swatch-code">--accent</div><div class="swatch-hex">#95BFE5 · only one accent — use generously</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#6FA0CC;"></div><div class="swatch-info"><div class="swatch-name">Accent Dim</div><div class="swatch-code">--accent-dim</div><div class="swatch-hex">#6FA0CC · hover / pressed states</div></div></div>
+    </div>
+
+    <h3 class="sub">Semantic</h3>
+    <div class="grid-4">
+      <div class="swatch"><div class="swatch-chip" style="background:#E8B473;"></div><div class="swatch-info"><div class="swatch-name">Warm</div><div class="swatch-code">--warm</div><div class="swatch-hex">Mild flags</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#FF7A3D;"></div><div class="swatch-info"><div class="swatch-name">Orange</div><div class="swatch-code">--orange</div><div class="swatch-hex">Alerts · flares</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#3CE89C;"></div><div class="swatch-info"><div class="swatch-name">Green</div><div class="swatch-code">--green</div><div class="swatch-hex">PRs · success</div></div></div>
+      <div class="swatch"><div class="swatch-chip" style="background:#FF4A5E;"></div><div class="swatch-info"><div class="swatch-name">Red</div><div class="swatch-code">--red</div><div class="swatch-hex">Destructive only</div></div></div>
+    </div>
+  </section>
+
+  <!-- ===== TYPOGRAPHY ===== -->
+  <section id="typography">
+    <div class="section-head">
+      <h2>Typography</h2>
+      <span class="count">Barlow Condensed · Geist · Geist Mono</span>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Display XL<strong>900 · 96px</strong></div>
+      <div class="type-sample" style="font-family: var(--font-display); font-weight: 900; font-size: 82px; line-height: 0.85; letter-spacing: -0.035em; text-transform: uppercase;">Train like you <span style="color: var(--accent); font-style: italic;">mean it.</span></div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Display L<strong>900 · 64px</strong></div>
+      <div class="type-sample" style="font-family: var(--font-display); font-weight: 900; font-size: 54px; line-height: 0.9; letter-spacing: -0.025em; text-transform: uppercase;">The <span style="color: var(--accent); font-style: italic;">receipts.</span></div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Display M<strong>800 · 32px</strong></div>
+      <div class="type-sample" style="font-family: var(--font-display); font-weight: 800; font-size: 32px; line-height: 0.95; letter-spacing: -0.015em; text-transform: uppercase;">Upper Push A</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Display S<strong>800 · 20px</strong></div>
+      <div class="type-sample" style="font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1; letter-spacing: 0.02em; text-transform: uppercase;">Section Header</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Body<strong>Geist · 400 · 14px</strong></div>
+      <div class="type-sample" style="font-size: 14px; color: var(--text); line-height: 1.5;">Based on yesterday's session volume and three skipped mobility slots this week.</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Body dim<strong>Geist · 400 · 13px</strong></div>
+      <div class="type-sample" style="font-size: 13px; color: var(--text-dim); line-height: 1.5;">Be honest — better to nail 3 than miss 5.</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Data / Label<strong>Mono · 500 · 11px</strong></div>
+      <div class="type-sample" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase;">60 KG · 10 REPS · RPE 8</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-label">Eyebrow<strong>Mono · 400 · 10.5px</strong></div>
+      <div class="type-sample" style="font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.22em; text-transform: uppercase;">Step 03 · Experience</div>
+    </div>
+  </section>
+
+  <!-- ===== SPACING + RADII ===== -->
+  <section id="spacing">
+    <div class="section-head">
+      <h2>Spacing & Radii</h2>
+      <span class="count">4px scale · 7 radii tokens</span>
+    </div>
+
+    <h3 class="sub">Spacing — 4px scale</h3>
+    <div class="spec">
+      <div class="spec-stage stack">
+        <div class="space-bars">
+          <div class="space-row"><span>--s-1</span><div class="space-bar" style="width: 4px;"></div><span class="val">4px</span></div>
+          <div class="space-row"><span>--s-2</span><div class="space-bar" style="width: 8px;"></div><span class="val">8px</span></div>
+          <div class="space-row"><span>--s-3</span><div class="space-bar" style="width: 12px;"></div><span class="val">12px</span></div>
+          <div class="space-row"><span>--s-4</span><div class="space-bar" style="width: 16px;"></div><span class="val">16px</span></div>
+          <div class="space-row"><span>--s-5</span><div class="space-bar" style="width: 20px;"></div><span class="val">20px</span></div>
+          <div class="space-row"><span>--s-6</span><div class="space-bar" style="width: 22px;"></div><span class="val">22px · screen pad</span></div>
+          <div class="space-row"><span>--s-7</span><div class="space-bar" style="width: 28px;"></div><span class="val">28px</span></div>
+          <div class="space-row"><span>--s-8</span><div class="space-bar" style="width: 32px;"></div><span class="val">32px</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">Radii</h3>
+    <div class="spec">
+      <div class="spec-stage" style="padding: 24px;">
+        <div class="radius-demo" style="width: 100%;">
+          <div class="radius-box" style="border-radius: 4px;"><strong>XS</strong>4</div>
+          <div class="radius-box" style="border-radius: 8px;"><strong>SM</strong>8</div>
+          <div class="radius-box" style="border-radius: 12px;"><strong>MD</strong>12</div>
+          <div class="radius-box" style="border-radius: 16px;"><strong>LG</strong>16</div>
+          <div class="radius-box" style="border-radius: 20px;"><strong>XL</strong>20</div>
+          <div class="radius-box" style="border-radius: 24px;"><strong>2XL</strong>24</div>
+          <div class="radius-box" style="border-radius: 50px;"><strong>PILL</strong>∞</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMPONENTS ===== -->
+  <section id="components">
+    <div class="section-head">
+      <h2>Components</h2>
+      <span class="count">Core UI primitives</span>
+    </div>
+
+    <h3 class="sub">Buttons</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <button class="btn-primary">Resume <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button class="btn-secondary">Skip</button>
+        <div class="icon-btn-demo"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Button · Primary / Secondary / Icon</span><span class="spec-tokens"><code>--accent</code> · <code>--r-md</code> · Barlow 800</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <button class="btn-cta-full">Log Set 3 <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Button · Full-width CTA</span><span class="spec-tokens"><code>--r-lg</code> · 18px padding · box-shadow glow</span></div>
+    </div>
+
+    <h3 class="sub">Chips</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <span class="chip-demo on">All <span class="count">24</span></span>
+        <span class="chip-demo">Build <span class="count">8</span></span>
+        <span class="chip-demo">Golf <span class="count">5</span></span>
+        <span class="chip-demo">Cable <span class="count">4</span></span>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Chip · Filter with count</span><span class="spec-tokens"><code>--r-pill</code> · Mono 11px</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <span class="chip-demo on">Lower back</span>
+        <span class="chip-demo on">Knees</span>
+        <span class="chip-demo">Shoulders</span>
+        <span class="chip-demo">Hips</span>
+        <span class="chip-demo">Neck</span>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Chip · Multi-select</span><span class="spec-tokens">Toggleable · state via <code>.on</code></span></div>
+    </div>
+
+    <h3 class="sub">Section header pattern</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="sh-demo">
+          <h4>Today's Session</h4>
+          <a href="#">Change →</a>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Section Header · Title + link</span><span class="spec-tokens"><code>--accent</code> dot prefix · Barlow 800</span></div>
+    </div>
+
+    <h3 class="sub">Eyebrow</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <span class="eyebrow-demo">Morning Check-in · Fri 17 Apr</span>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Eyebrow · Contextual label</span><span class="spec-tokens">Accent dash · letter-spacing 0.22em</span></div>
+    </div>
+
+    <h3 class="sub">Cards</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="card-base">
+          <div class="card-label">Label</div>
+          <div class="card-title">Base Card</div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Card · Base surface</span><span class="spec-tokens"><code>--surface</code> + <code>--border-soft</code> · <code>--r-xl</code> 20</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="card-accent">
+          <div class="card-label">Continuing · Week 3</div>
+          <div class="card-title">Accent Card</div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Card · Primary accent bar</span><span class="spec-tokens">Left-edge 3px accent · radial gradient top-right</span></div>
+    </div>
+
+    <h3 class="sub">Option cards</h3>
+    <div class="spec">
+      <div class="spec-stage stack">
+        <div class="opt-demo selected">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Strength & Muscle</div><div class="opt-sub">Build size · hit PRs</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </div>
+        <div class="opt-demo">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Golf Performance</div><div class="opt-sub">Grieve · rotational</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Option Card · Radio single-select</span><span class="spec-tokens">Selected state flips icon to <code>--accent</code></span></div>
+    </div>
+
+    <h3 class="sub">Form controls</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="toggle-demo on"></div>
+        <div class="toggle-demo"></div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Toggle · Switch</span><span class="spec-tokens">52×30px · pill · state on <code>.on</code></span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="scale-demo">
+          <div class="scale-seg-demo filled">1</div>
+          <div class="scale-seg-demo active">2</div>
+          <div class="scale-seg-demo">3</div>
+          <div class="scale-seg-demo">4</div>
+          <div class="scale-seg-demo">5</div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Scale · Segmented 1–5</span><span class="spec-tokens">Energy · Sleep · RPE contexts · single-select</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="stepper-demo">
+          <button class="step-btn-demo">−</button>
+          <div class="step-val-demo">60<span class="unit">kg</span></div>
+          <button class="step-btn-demo">+</button>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Stepper · Weight / Reps</span><span class="spec-tokens">44×44pt tap targets · 2.5kg default increment</span></div>
+    </div>
+
+    <h3 class="sub">Feedback</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="progress-demo">
+          <div class="progress-fill-demo"></div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Progress bar</span><span class="spec-tokens">4px height · box-shadow accent glow</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <span class="status-demo">Training live</span>
+        <span class="status-demo">Adaptive · on</span>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Status chip · Live indicator</span><span class="spec-tokens">Pulsing accent dot · 1.8s animation</span></div>
+    </div>
+
+    <h3 class="sub">Structure</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="kpi-demo">
+          <div class="l">Streak</div>
+          <div class="v">47<span class="u">days</span></div>
+          <div class="d">▲ +2 vs last wk</div>
+        </div>
+        <div class="kpi-demo">
+          <div class="l">Sessions</div>
+          <div class="v">14<span class="u">/16</span></div>
+          <div class="d">88% adherence</div>
+        </div>
+        <div class="kpi-demo">
+          <div class="l">Time</div>
+          <div class="v">11<span class="u">h 42</span></div>
+          <div class="d">+1h 18 vs Mar</div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">KPI Cell · Metric with delta</span><span class="spec-tokens">Label / value / delta vertical rhythm</span></div>
+    </div>
+
+    <div class="spec">
+      <div class="spec-stage">
+        <div class="lanes-demo"></div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Lane Divider · Running track reference</span><span class="spec-tokens">Repeating linear gradient · masked ends</span></div>
+    </div>
+  </section>
+
+  <!-- ===== DATA VIZ ===== -->
+  <section id="data">
+    <div class="section-head">
+      <h2>Data Viz</h2>
+      <span class="count">Pure SVG · no library dependencies</span>
+    </div>
+
+    <div class="two-col">
+
+      <div class="spec">
+        <div class="spec-stage" style="padding: 24px;">
+          <div class="spark-demo">
+            <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="sgrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#95BFE5" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#95BFE5" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,48 L28,42 L56,44 L84,36 L112,28 L140,30 L168,22 L200,18 L200,60 L0,60 Z" fill="url(#sgrad)"/>
+              <path d="M0,48 L28,42 L56,44 L84,36 L112,28 L140,30 L168,22 L200,18" fill="none" stroke="#95BFE5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="200" cy="18" r="4" fill="#95BFE5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="spec-meta"><span class="spec-name">Sparkline · Trend with area</span><span class="spec-tokens">Gradient fill fades to transparent</span></div>
+      </div>
+
+      <div class="spec">
+        <div class="spec-stage" style="padding: 24px;">
+          <div class="bal-demo">
+            <span class="bal-name-demo">Chest</span>
+            <div class="bal-bar-wrap-demo"><div class="bal-bar-demo"></div><div class="bal-target-demo"></div></div>
+            <span class="bal-count-demo">42</span>
+          </div>
+        </div>
+        <div class="spec-meta"><span class="spec-name">Bar with target</span><span class="spec-tokens">Fill shows current · tick marks target range</span></div>
+      </div>
+
+      <div class="spec">
+        <div class="spec-stage" style="padding: 24px;">
+          <div style="display: flex; gap: 4px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="width:16px;height:16px;background:var(--surface-3);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.2);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.4);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.7);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.4);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--surface-3);border-radius:3px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.2);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.7);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.4);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.2);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--surface-3);border-radius:3px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.7);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.4);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.7);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.2);border-radius:3px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:rgba(149,191,229,0.7);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;"></div>
+              <div style="width:16px;height:16px;background:var(--accent);border-radius:3px;box-shadow: 0 0 6px var(--accent);"></div>
+            </div>
+          </div>
+        </div>
+        <div class="spec-meta"><span class="spec-name">Adherence Heatmap · GitHub-style</span><span class="spec-tokens">5 intensity levels · accent glow on today</span></div>
+      </div>
+
+      <div class="spec">
+        <div class="spec-stage" style="padding: 20px;">
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; height: 70px; gap: 6px; width: 100%;">
+            <div style="flex:1;background:var(--surface-3);border-radius:3px 3px 0 0;height:48%;"></div>
+            <div style="flex:1;background:var(--surface-3);border-radius:3px 3px 0 0;height:12%;"></div>
+            <div style="flex:1;background:var(--accent);border-radius:3px 3px 0 0;height:64%;"></div>
+            <div style="flex:1;background:var(--accent);border-radius:3px 3px 0 0;height:38%;"></div>
+            <div style="flex:1;background:var(--surface-3);border-radius:3px 3px 0 0;height:12%;"></div>
+            <div style="flex:1;background:var(--accent);border-radius:3px 3px 0 0;height:82%;"></div>
+            <div style="flex:1;background:var(--accent);border-radius:3px 3px 0 0;height:54%;box-shadow:0 0 12px rgba(149,191,229,0.5);"></div>
+          </div>
+        </div>
+        <div class="spec-meta"><span class="spec-name">Weekly Bar Chart · 7-day activity</span><span class="spec-tokens">Rest days dim · active days accent · today glows</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== PATTERNS ===== -->
+  <section id="patterns">
+    <div class="section-head">
+      <h2>Patterns</h2>
+      <span class="count">Compositional conventions</span>
+    </div>
+
+    <h3 class="sub">Page head</h3>
+    <div class="spec">
+      <div class="spec-stage" style="padding: 28px; justify-content: flex-start; flex-direction: column; align-items: flex-start;">
+        <span class="eyebrow-demo" style="margin-bottom: 14px;">Stats · Apr 2026</span>
+        <div style="font-family: var(--font-display); font-weight: 900; font-size: 56px; line-height: 0.88; letter-spacing: -0.025em; text-transform: uppercase;">The<br><span style="color:var(--accent);font-style:italic;">receipts.</span></div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Page Head · Eyebrow + Display title</span><span class="spec-tokens">Every top-level screen opens with this pattern</span></div>
+    </div>
+
+    <h3 class="sub">Radial attention</h3>
+    <div class="spec">
+      <div class="spec-stage">
+        <div style="width:100%;max-width:340px;padding:20px;border-radius:var(--r-xl);border:1px solid rgba(149,191,229,0.22);background:radial-gradient(circle at 110% -10%,rgba(149,191,229,0.1),transparent 55%),var(--surface);position:relative;overflow:hidden;">
+          <div style="position:absolute;left:0;top:20px;bottom:20px;width:3px;background:var(--accent);"></div>
+          <div style="padding-left:10px;">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px;">● Suggested · from data</div>
+            <div style="font-family: var(--font-display); font-weight: 900; font-size: 24px; line-height: 1; text-transform: uppercase; letter-spacing: -0.01em;">AI Pattern Card</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Attention Card · Accent-bar + radial gradient</span><span class="spec-tokens">For AI / suggested / primary content</span></div>
+    </div>
+
+    <h3 class="sub">Bottom nav</h3>
+    <div class="spec">
+      <div class="spec-stage" style="padding: 20px; background: var(--surface-2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(20,20,22,0.92); backdrop-filter: blur(18px); border: 1px solid var(--border); border-radius: 100px; padding: 8px; width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;color:var(--text);"><svg style="width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:1.8;" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/></svg><span style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;">Today</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;color:var(--text-muted);"><svg style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;" viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg><span style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;">Train</span></div>
+          <div style="width:58px;height:58px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000;font-family:var(--font-display);font-weight:900;font-size:21px;margin:-18px 2px;box-shadow:0 8px 28px rgba(149,191,229,0.35);">AI</div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;color:var(--text-muted);"><svg style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2" stroke-linecap="round"/></svg><span style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;">Stats</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;color:var(--text-muted);"><svg style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;">More</span></div>
+        </div>
+      </div>
+      <div class="spec-meta"><span class="spec-name">Bottom Nav · 5 destinations + centre FAB</span><span class="spec-tokens">Blurred glass · AI as floating centre action</span></div>
+    </div>
+  </section>
+
+  <!-- ===== PORTING ===== -->
+  <section id="port">
+    <div class="section-head">
+      <h2>Porting</h2>
+      <span class="count">React / Tailwind config</span>
+    </div>
+
+    <h3 class="sub">Tailwind config</h3>
+    <div class="code"><span class="c">// tailwind.config.js — drop-in</span>
+<span class="p">module.exports</span> <span class="k">=</span> {
+  <span class="p">theme</span>: {
+    <span class="p">extend</span>: {
+      <span class="p">colors</span>: {
+        <span class="p">bg</span>: <span class="s">'#0B0B0C'</span>,
+        <span class="p">surface</span>: { <span class="p">DEFAULT</span>: <span class="s">'#141416'</span>, <span class="p">2</span>: <span class="s">'#1B1B1E'</span>, <span class="p">3</span>: <span class="s">'#26262A'</span> },
+        <span class="p">border</span>: { <span class="p">DEFAULT</span>: <span class="s">'#2A2A2E'</span>, <span class="p">soft</span>: <span class="s">'#1E1E22'</span> },
+        <span class="p">fg</span>: { <span class="p">DEFAULT</span>: <span class="s">'#FAFAF5'</span>, <span class="p">dim</span>: <span class="s">'#8E8E94'</span>, <span class="p">muted</span>: <span class="s">'#54545A'</span> },
+        <span class="p">accent</span>: { <span class="p">DEFAULT</span>: <span class="s">'#95BFE5'</span>, <span class="p">dim</span>: <span class="s">'#6FA0CC'</span> },
+        <span class="p">warm</span>: <span class="s">'#E8B473'</span>, <span class="p">orange</span>: <span class="s">'#FF7A3D'</span>,
+        <span class="p">green</span>: <span class="s">'#3CE89C'</span>, <span class="p">red</span>: <span class="s">'#FF4A5E'</span>
+      },
+      <span class="p">fontFamily</span>: {
+        <span class="p">display</span>: [<span class="s">'Barlow Condensed'</span>, <span class="s">'sans-serif'</span>],
+        <span class="p">sans</span>: [<span class="s">'Geist'</span>, <span class="s">'sans-serif'</span>],
+        <span class="p">mono</span>: [<span class="s">'Geist Mono'</span>, <span class="s">'monospace'</span>]
+      },
+      <span class="p">borderRadius</span>: {
+        <span class="p">xs</span>: <span class="s">'4px'</span>, <span class="p">sm</span>: <span class="s">'8px'</span>, <span class="p">md</span>: <span class="s">'12px'</span>,
+        <span class="p">lg</span>: <span class="s">'16px'</span>, <span class="p">xl</span>: <span class="s">'20px'</span>, <span class="p">'2xl'</span>: <span class="s">'24px'</span>
+      }
+    }
+  }
+}</div>
+
+    <h3 class="sub">Typography utility classes</h3>
+    <div class="code"><span class="c">/* Most reached-for combinations */</span>
+
+<span class="c">/* Display title */</span>
+<span class="k">.txt-display-xl</span> { <span class="p">font-family</span>: <span class="k">var</span>(<span class="p">--font-display</span>); <span class="p">font-weight</span>: <span class="s">900</span>;
+                    <span class="p">font-size</span>: <span class="s">64px</span>; <span class="p">line-height</span>: <span class="s">0.88</span>;
+                    <span class="p">letter-spacing</span>: <span class="s">-0.025em</span>; <span class="p">text-transform</span>: <span class="s">uppercase</span>; }
+
+<span class="c">/* Eyebrow label */</span>
+<span class="k">.txt-eyebrow</span> { <span class="p">font-family</span>: <span class="k">var</span>(<span class="p">--font-mono</span>); <span class="p">font-size</span>: <span class="s">10.5px</span>;
+                 <span class="p">letter-spacing</span>: <span class="s">0.22em</span>; <span class="p">text-transform</span>: <span class="s">uppercase</span>;
+                 <span class="p">color</span>: <span class="k">var</span>(<span class="p">--text-dim</span>); }
+
+<span class="c">/* Data label */</span>
+<span class="k">.txt-data</span> { <span class="p">font-family</span>: <span class="k">var</span>(<span class="p">--font-mono</span>); <span class="p">font-size</span>: <span class="s">11px</span>;
+              <span class="p">letter-spacing</span>: <span class="s">0.08em</span>; <span class="p">font-feature-settings</span>: <span class="s">"tnum"</span>; }</div>
+
+    <h3 class="sub">Noise overlay recipe</h3>
+    <div class="code"><span class="c">/* Applied globally to body::before, pointer-events:none */</span>
+<span class="k">body::before</span> {
+  <span class="p">content</span>: <span class="s">''</span>;
+  <span class="p">position</span>: <span class="s">fixed</span>; <span class="p">inset</span>: <span class="s">0</span>;
+  <span class="p">pointer-events</span>: <span class="s">none</span>;
+  <span class="p">opacity</span>: <span class="s">0.04</span>;
+  <span class="p">z-index</span>: <span class="s">1000</span>;
+  <span class="p">mix-blend-mode</span>: <span class="s">overlay</span>;
+  <span class="p">background-image</span>: <span class="k">url</span>(<span class="s">"data:image/svg+xml,..."</span>); <span class="c">/* inline SVG turbulence filter */</span>
+}</div>
+
+    <h3 class="sub">Motion</h3>
+    <div class="code"><span class="c">/* Fade-up entrance — most common */</span>
+<span class="k">@keyframes</span> <span class="p">fadeUp</span> {
+  <span class="p">from</span> { <span class="p">opacity</span>: <span class="s">0</span>; <span class="p">transform</span>: <span class="k">translateY</span>(<span class="s">12px</span>); }
+  <span class="p">to</span>   { <span class="p">opacity</span>: <span class="s">1</span>; <span class="p">transform</span>: <span class="k">translateY</span>(<span class="s">0</span>); }
+}
+
+<span class="c">/* Staggered children · reveal rhythm */</span>
+<span class="k">.fade-up</span>        { <span class="p">animation</span>: <span class="p">fadeUp</span> <span class="s">0.6s</span> <span class="k">cubic-bezier</span>(<span class="s">.2,.8,.2,1</span>) <span class="p">forwards</span>; }
+<span class="k">.delay-1</span>        { <span class="p">animation-delay</span>: <span class="s">0.05s</span>; }
+<span class="k">.delay-2</span>        { <span class="p">animation-delay</span>: <span class="s">0.10s</span>; }
+<span class="k">.delay-3</span>        { <span class="p">animation-delay</span>: <span class="s">0.15s</span>; }
+<span class="c">/* ... step size 50ms */</span></div>
+  </section>
+
+  <footer class="footer-meta">
+    <span>FitTrack · Design System <strong>v0.1</strong></span>
+    <span>Last updated · <strong>17 Apr 2026</strong></span>
+    <span>7 screens · 18 components · <strong>1 accent</strong></span>
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+  document.querySelectorAll('.toggle-demo').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+  document.querySelectorAll('.chip-demo').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+</script>
+
+</body>
+</html>

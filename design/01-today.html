@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+    --accent: #95BFE5;
+    --accent-dim: #6FA0CC;
+    --orange: #FF7A3D;
+    --blue: #5AA3FF;
+    --red: #FF4A5E;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    pointer-events: none; opacity: 0.04; z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+  .app {
+    max-width: 430px; margin: 0 auto;
+    min-height: 100vh; position: relative;
+    background: var(--bg); overflow-x: hidden;
+  }
+
+  /* Screens */
+  .screen { display: none; padding-bottom: 120px; animation: screenIn 0.35s cubic-bezier(.2,.8,.2,1); }
+  .screen.active { display: block; }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Status row */
+  .status-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 22px 10px;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .status-row .live { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); }
+  .status-row .live::before {
+    content: ''; width: 6px; height: 6px; background: var(--accent);
+    border-radius: 50%; animation: pulse 1.8s infinite; box-shadow: 0 0 10px var(--accent);
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.85); } }
+
+  /* Top bar for sub-screens */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 10px; }
+  .icon-btn {
+    width: 40px; height: 40px; background: var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); cursor: pointer;
+  }
+  .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .top-bar .title-block { text-align: center; flex: 1; }
+  .top-bar .title-block .sub {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 2px;
+  }
+  .top-bar .title-block h2 {
+    font-family: var(--font-display); font-weight: 900; font-size: 22px;
+    text-transform: uppercase; letter-spacing: -0.005em;
+  }
+  .top-bar .streak-mini {
+    display: flex; align-items: center; gap: 6px;
+    height: 40px; padding: 0 12px;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 12px; font-family: var(--font-mono);
+    font-size: 11px; color: var(--accent); letter-spacing: 0.1em;
+  }
+  .top-bar .streak-mini::before { content: '◆'; font-size: 8px; }
+
+  /* Home hero */
+  header.hero { padding: 14px 22px 24px; }
+  .greeting-small {
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .greeting-small::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+  .greeting {
+    font-family: var(--font-display); font-weight: 900; font-size: 62px;
+    line-height: 0.88; letter-spacing: -0.015em; text-transform: uppercase;
+  }
+  .greeting .accent { color: var(--accent); font-style: italic; font-weight: 900; }
+
+  /* Streak */
+  .streak-block {
+    margin: 22px 22px 0; padding: 22px;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 22px; position: relative; overflow: hidden;
+  }
+  .streak-block::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 110% -10%, rgba(149, 191, 229, 0.10), transparent 55%),
+      radial-gradient(circle at -10% 110%, rgba(149, 191, 229, 0.04), transparent 50%);
+    pointer-events: none;
+  }
+  .streak-block::after {
+    content: ''; position: absolute; top: 18px; right: 18px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: conic-gradient(from -90deg,
+      rgba(149,191,229,0.35) 0deg, rgba(149,191,229,0.35) 169deg,
+      rgba(255,255,255,0.05) 169deg, rgba(255,255,255,0.05) 360deg);
+    mask: radial-gradient(circle, transparent 42%, black 44%, black 46%, transparent 47%);
+    -webkit-mask: radial-gradient(circle, transparent 42%, black 44%, black 46%, transparent 47%);
+    pointer-events: none;
+  }
+  .streak-block .label {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 4px;
+    position: relative; z-index: 2;
+  }
+  .streak-number {
+    font-family: var(--font-display); font-weight: 900; font-size: 124px;
+    line-height: 0.82; color: var(--accent); letter-spacing: -0.04em;
+    display: flex; align-items: baseline; gap: 14px;
+    position: relative; z-index: 2;
+  }
+  .streak-number small {
+    font-size: 22px; color: var(--text-dim); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .streak-meta {
+    display: flex; justify-content: space-between; margin-top: 18px;
+    padding-top: 16px; border-top: 1px dashed var(--border);
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    position: relative; z-index: 2;
+  }
+  .streak-meta strong { color: var(--text); font-weight: 500; }
+  .streak-meta .up { color: var(--accent); }
+
+  /* Section titles */
+  .section-title {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 22px; margin: 34px 0 12px;
+  }
+  .section-title h3 {
+    font-family: var(--font-display); font-weight: 800; font-size: 19px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title h3::before {
+    content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+  }
+  .section-title a, .section-title button {
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;
+    background: none; border: none; cursor: pointer;
+  }
+  .section-title a:hover, .section-title button:hover { color: var(--accent); }
+
+  /* Plan card */
+  .plan-card {
+    margin: 0 22px; background: var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 20px;
+    padding: 20px 22px 20px 26px; position: relative; overflow: hidden;
+    display: block; color: inherit; text-decoration: none;
+    transition: transform 0.15s ease; cursor: pointer;
+  }
+  .plan-card:active { transform: scale(0.99); }
+  .plan-card::before {
+    content: ''; position: absolute; left: 0; top: 20px; bottom: 20px;
+    width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+  }
+  .plan-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 10px;
+    background: rgba(149, 191, 229, 0.1); color: var(--accent);
+    padding: 5px 10px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    margin-bottom: 14px; border: 1px solid rgba(149, 191, 229, 0.2);
+  }
+  .plan-tag::before {
+    content: ''; width: 5px; height: 5px; background: var(--accent);
+    border-radius: 50%; animation: pulse 1.8s infinite;
+  }
+  .plan-title {
+    font-family: var(--font-display); font-weight: 900; font-size: 38px;
+    line-height: 0.95; text-transform: uppercase; letter-spacing: -0.015em;
+    margin-bottom: 12px;
+  }
+  .plan-meta {
+    display: flex; gap: 18px; font-size: 12.5px; color: var(--text-dim);
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .plan-meta span {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); letter-spacing: 0.02em;
+  }
+  .plan-meta strong { color: var(--text); font-weight: 500; }
+  .plan-meta .dot { color: var(--text-muted); }
+  .intensity {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.14em;
+    padding-top: 14px; border-top: 1px solid var(--border-soft);
+  }
+  .intensity-bar { display: flex; gap: 3px; flex: 1; }
+  .intensity-bar .seg { flex: 1; height: 5px; background: var(--surface-3); border-radius: 1px; }
+  .intensity-bar .seg.on { background: var(--accent); }
+
+  /* Train grid */
+  .train-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 22px;
+  }
+  .train-tile {
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 18px; padding: 18px; aspect-ratio: 1.25;
+    display: flex; flex-direction: column; justify-content: space-between;
+    text-decoration: none; color: inherit; position: relative; overflow: hidden;
+    transition: transform 0.15s; cursor: pointer;
+  }
+  .train-tile:active { transform: scale(0.97); }
+  .train-tile .icon-wrap {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    background: var(--surface-3); border-radius: 11px; color: var(--text);
+  }
+  .train-tile .icon-wrap svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .train-tile h4 {
+    font-family: var(--font-display); font-weight: 900; font-size: 26px;
+    text-transform: uppercase; letter-spacing: -0.01em; line-height: 1;
+  }
+  .train-tile p {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 6px;
+  }
+  .train-tile.featured {
+    background: linear-gradient(135deg, rgba(149,191,229,0.07), transparent 60%), var(--surface);
+    border-color: rgba(149, 191, 229, 0.2);
+  }
+  .train-tile.featured .icon-wrap { background: var(--accent); color: #000; }
+  .train-tile.featured h4 { color: var(--accent); }
+  .train-tile .badge {
+    position: absolute; top: 14px; right: 14px;
+    font-family: var(--font-mono); font-size: 9px; color: var(--accent);
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+
+  /* Lanes */
+  .lanes {
+    height: 18px; margin: 36px 22px;
+    background-image: repeating-linear-gradient(90deg, transparent 0, transparent 10px, var(--border) 10px, var(--border) 22px);
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  }
+
+  /* Week card */
+  .week-card {
+    margin: 0 22px; background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 20px; padding: 20px;
+  }
+  .week-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .week-head .label {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .week-head .big {
+    font-family: var(--font-display); font-weight: 900; font-size: 48px;
+    line-height: 0.9; letter-spacing: -0.025em;
+  }
+  .week-head .big small {
+    font-size: 15px; color: var(--text-dim); font-weight: 600;
+    margin-left: 4px; letter-spacing: 0.04em;
+  }
+  .week-head .change {
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--accent);
+    background: rgba(149, 191, 229, 0.08); padding: 5px 9px; border-radius: 5px;
+    letter-spacing: 0.08em; border: 1px solid rgba(149, 191, 229, 0.18);
+  }
+  .week-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 78px; gap: 7px; margin-bottom: 10px; }
+  .day-bar {
+    flex: 1; background: var(--surface-3); border-radius: 3px 3px 0 0;
+    position: relative; min-height: 5px;
+    transition: height 0.8s cubic-bezier(.2,.8,.2,1);
+  }
+  .day-bar.active { background: var(--accent); }
+  .day-bar.today { background: var(--accent); box-shadow: 0 0 16px rgba(149,191,229,0.5); }
+  .day-bar.today::after {
+    content: '●'; position: absolute; top: -14px; left: 50%;
+    transform: translateX(-50%); color: var(--accent); font-size: 6px;
+  }
+  .day-labels {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.1em; gap: 7px;
+  }
+  .day-labels span { flex: 1; text-align: center; }
+  .day-labels span.today { color: var(--accent); font-weight: 500; }
+  .week-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
+    margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--border);
+  }
+  .week-stat { text-align: left; padding: 0 12px; border-left: 1px solid var(--border-soft); }
+  .week-stat:first-child { border-left: none; padding-left: 0; }
+  .week-stat .v {
+    font-family: var(--font-display); font-weight: 800; font-size: 22px;
+    line-height: 1; letter-spacing: -0.01em;
+  }
+  .week-stat .k {
+    font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted);
+    letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;
+  }
+
+  /* AI card */
+  .ai-card {
+    margin: 0 22px;
+    background: linear-gradient(135deg, rgba(149,191,229,0.06), transparent 55%), var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.15); border-radius: 20px;
+    padding: 20px; position: relative; overflow: hidden;
+    display: block; color: inherit; text-decoration: none; cursor: pointer;
+  }
+  .ai-card::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(149,191,229,0.14), transparent 65%);
+    pointer-events: none;
+  }
+  .ai-card .ai-label {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .ai-card .ai-label::before { content: '◆'; font-size: 10px; }
+  .ai-card h4 {
+    font-family: var(--font-display); font-weight: 800; font-size: 24px;
+    line-height: 1.05; text-transform: uppercase; letter-spacing: -0.005em; margin-bottom: 6px;
+  }
+  .ai-card p { font-size: 13px; color: var(--text-dim); line-height: 1.45; margin-bottom: 14px; max-width: 90%; }
+  .ai-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #000;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 9px 14px; border-radius: 8px;
+    text-decoration: none; border: none; cursor: pointer;
+  }
+  .ai-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+  /* Recent list */
+  .recent-list {
+    margin: 0 22px; background: var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 20px; padding: 4px 18px;
+  }
+  .recent-item {
+    display: flex; align-items: center; padding: 16px 0;
+    border-bottom: 1px solid var(--border-soft); gap: 14px;
+    text-decoration: none; color: inherit;
+  }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-icon {
+    width: 40px; height: 40px; background: var(--surface-2);
+    border-radius: 11px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: var(--text-dim);
+  }
+  .recent-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .recent-item.accent .recent-icon { background: rgba(149,191,229,0.1); color: var(--accent); }
+  .recent-info { flex: 1; min-width: 0; }
+  .recent-title { font-weight: 500; font-size: 14.5px; margin-bottom: 4px; letter-spacing: -0.005em; }
+  .recent-sub {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .recent-time {
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
+    letter-spacing: 0.06em; text-transform: uppercase; text-align: right;
+  }
+  .recent-time strong { display: block; color: var(--text); font-weight: 500; margin-bottom: 3px; }
+
+  /* ---------- STRETCH HUB ---------- */
+  .hub-hero {
+    margin: 12px 22px 0; padding: 24px 22px;
+    background: radial-gradient(circle at 85% 15%, rgba(149,191,229,0.12), transparent 60%), var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 22px;
+    position: relative; overflow: hidden;
+  }
+  .hub-hero-tag {
+    font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .hub-hero-tag::before { content: ''; width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+  .hub-hero-title {
+    font-family: var(--font-display); font-weight: 900; font-size: 42px;
+    line-height: 0.92; text-transform: uppercase; letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .hub-hero-title .accent { color: var(--accent); }
+  .hub-hero-why { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 18px; max-width: 92%; }
+  .hub-hero-meta {
+    display: flex; gap: 16px;
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 18px;
+  }
+  .hub-hero-meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .hub-hero-meta strong { color: var(--text); font-weight: 500; }
+  .hub-hero-meta .dot-divider { width: 3px; height: 3px; background: var(--text-muted); border-radius: 50%; align-self: center; }
+  .hub-hero .start-btn {
+    width: 100%; background: var(--accent); color: #000;
+    font-family: var(--font-display); font-weight: 900; font-size: 18px;
+    letter-spacing: 0.02em; text-transform: uppercase;
+    padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(149, 191, 229, 0.2);
+  }
+  .hub-hero .start-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: currentColor; stroke-width: 1.5; }
+  .hub-hero-figure { position: absolute; top: 16px; right: 14px; width: 86px; height: 86px; opacity: 0.85; }
+  .hub-hero-figure svg { width: 100%; height: 100%; }
+
+  /* Category grid */
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 22px; }
+  .cat-tile {
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 16px; padding: 16px;
+    text-decoration: none; color: inherit; cursor: pointer;
+    position: relative; overflow: hidden; min-height: 118px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .cat-tile .cat-fig { width: 48px; height: 48px; color: var(--accent); opacity: 0.92; }
+  .cat-tile .cat-fig svg { width: 100%; height: 100%; }
+  .cat-tile h4 {
+    font-family: var(--font-display); font-weight: 800; font-size: 20px;
+    text-transform: uppercase; letter-spacing: -0.005em; line-height: 1; margin-top: 8px;
+  }
+  .cat-tile p {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
+  }
+
+  /* AI builder */
+  .ai-builder {
+    margin: 0 22px;
+    background: linear-gradient(135deg, rgba(149,191,229,0.05), transparent 60%), var(--surface);
+    border: 1px solid rgba(149, 191, 229, 0.15); border-radius: 20px; padding: 18px;
+  }
+  .ai-builder-label {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .ai-builder-label::before { content: '◆'; }
+  .ai-builder h4 {
+    font-family: var(--font-display); font-weight: 800; font-size: 22px;
+    line-height: 1.05; text-transform: uppercase; letter-spacing: -0.005em; margin-bottom: 4px;
+  }
+  .ai-builder .hint { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; }
+  .ai-input-wrap {
+    position: relative; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  .ai-input-wrap textarea {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--font-ui); font-size: 14px;
+    resize: none; min-height: 48px;
+  }
+  .ai-input-wrap textarea::placeholder { color: var(--text-muted); }
+  .ai-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ai-chip {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    background: var(--surface-2); border: 1px solid var(--border-soft);
+    border-radius: 100px; padding: 6px 10px;
+    letter-spacing: 0.06em; cursor: pointer;
+  }
+  .ai-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .ai-build-btn {
+    width: 100%; background: var(--accent); color: #000;
+    font-family: var(--font-mono); font-weight: 500; font-size: 12px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 12px; border-radius: 10px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .ai-build-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+  /* ---------- PLAYER ---------- */
+  .player { padding: 12px 0 0; }
+  .player-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 4px; }
+  .player-title { text-align: center; flex: 1; }
+  .player-title .series {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 2px;
+  }
+  .player-title h2 {
+    font-family: var(--font-display); font-weight: 800; font-size: 18px;
+    text-transform: uppercase; letter-spacing: 0.01em;
+  }
+  .progress-segs { display: flex; gap: 3px; padding: 0 22px; margin: 14px 0 30px; }
+  .progress-segs .seg {
+    flex: 1; height: 3px; background: var(--surface-3); border-radius: 2px;
+    overflow: hidden; position: relative;
+  }
+  .progress-segs .seg.done { background: var(--accent); }
+  .progress-segs .seg.active { background: var(--surface-3); }
+  .progress-segs .seg.active::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 62%; background: var(--accent); border-radius: 2px;
+    animation: segFill 1s ease-out forwards;
+  }
+  @keyframes segFill { from { width: 0; } to { width: 62%; } }
+
+  .stage { padding: 0 22px; display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+  .stretch-name {
+    font-family: var(--font-display); font-weight: 900; font-size: 36px;
+    text-transform: uppercase; letter-spacing: -0.015em; line-height: 1;
+    text-align: center; margin-bottom: 10px;
+  }
+  .stretch-muscles { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+  .muscle-chip {
+    font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+    background: rgba(149, 191, 229, 0.08); border: 1px solid rgba(149, 191, 229, 0.22);
+    padding: 4px 8px; border-radius: 4px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .figure-box {
+    width: 100%; max-width: 280px; aspect-ratio: 1;
+    background: radial-gradient(circle, rgba(149,191,229,0.08), transparent 65%), var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; margin-bottom: 28px; overflow: hidden;
+  }
+  .figure-box::before {
+    content: ''; position: absolute; inset: 12px; border-radius: 50%;
+    border: 1px dashed var(--border); opacity: 0.5;
+  }
+  .figure-box svg {
+    width: 66%; height: 66%;
+    stroke: var(--text); fill: none; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+  .stretch-instruction {
+    text-align: center; font-size: 14px; color: var(--text-dim);
+    line-height: 1.5; padding: 0 30px; margin-bottom: 26px; max-width: 360px;
+  }
+
+  .timer-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 26px; }
+  .timer-ring { position: relative; width: 170px; height: 170px; }
+  .timer-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .timer-ring .track { fill: none; stroke: var(--surface-3); stroke-width: 4; }
+  .timer-ring .progress {
+    fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round;
+    stroke-dasharray: 502; stroke-dashoffset: 502;
+    filter: drop-shadow(0 0 6px rgba(149, 191, 229, 0.4));
+    transition: stroke-dashoffset 1s linear;
+  }
+  .timer-num {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 900; font-size: 72px;
+    line-height: 1; color: var(--text); letter-spacing: -0.04em;
+  }
+  .timer-num small {
+    font-size: 11px; color: var(--text-dim); font-weight: 500;
+    letter-spacing: 0.24em; text-transform: uppercase; margin-top: 6px;
+  }
+  .duration-adjust {
+    display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .dur-btn {
+    width: 32px; height: 32px; background: var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 10px;
+    color: var(--text); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-weight: 700;
+  }
+
+  .player-controls { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 22px; }
+  .ctrl-btn {
+    width: 56px; height: 56px; background: var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 50%;
+    color: var(--text); display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .ctrl-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: currentColor; stroke-width: 0; }
+  .ctrl-play {
+    width: 76px; height: 76px; background: var(--accent); color: #000;
+    border: none; box-shadow: 0 8px 28px rgba(149, 191, 229, 0.3);
+  }
+  .ctrl-play svg { width: 26px; height: 26px; }
+
+  .up-next {
+    margin: 0 22px; background: var(--surface);
+    border: 1px solid var(--border-soft); border-radius: 14px;
+    padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .up-next .next-label {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.18em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .up-next .next-name { flex: 1; font-size: 14px; font-weight: 500; letter-spacing: -0.005em; }
+  .up-next .next-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; padding: 14px 18px 26px;
+    background: linear-gradient(to top, var(--bg) 55%, rgba(11,11,12,0.85) 80%, transparent);
+    display: flex; justify-content: center; z-index: 100; pointer-events: none;
+  }
+  .bottom-nav-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(20,20,22,0.92);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border); border-radius: 100px; padding: 8px;
+    width: 100%; pointer-events: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 0 6px; color: var(--text-muted); text-decoration: none;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; background: none; border: none;
+    cursor: pointer; transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--text); }
+  .nav-btn.active svg { stroke: var(--accent); }
+  .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .nav-ai {
+    width: 58px; height: 58px; background: var(--accent); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: #000;
+    font-family: var(--font-display); font-weight: 900; font-size: 21px;
+    border: none; cursor: pointer;
+    box-shadow: 0 8px 28px rgba(149, 191, 229, 0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+    margin: -18px 2px; position: relative; letter-spacing: -0.02em;
+  }
+  .nav-ai::after {
+    content: ''; position: absolute; inset: -2px; border-radius: 50%;
+    border: 1.5px solid var(--accent); opacity: 0.35;
+    animation: ring 2.6s infinite; z-index: -1;
+  }
+  @keyframes ring { 0% { transform: scale(1); opacity: 0.35; } 100% { transform: scale(1.4); opacity: 0; } }
+
+  .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp 0.7s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .delay-1 { animation-delay: 0.06s; }
+  .delay-2 { animation-delay: 0.12s; }
+  .delay-3 { animation-delay: 0.18s; }
+  .delay-4 { animation-delay: 0.24s; }
+  .delay-5 { animation-delay: 0.30s; }
+  .delay-6 { animation-delay: 0.36s; }
+
+  @media (min-width: 431px) {
+    .app {
+      margin-top: 24px; margin-bottom: 24px;
+      border: 1px solid var(--border-soft); border-radius: 32px;
+      overflow: hidden; min-height: calc(100vh - 48px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .bottom-nav { border-radius: 0 0 32px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="status-row">
+      <span>FRI 17 APR · 08:42 BST</span>
+      <span class="live">Training Live</span>
+    </div>
+
+    <header class="hero fade-up">
+      <div class="greeting-small">Morning, Dave</div>
+      <h1 class="greeting">Let's<br>make it<br><span class="accent">count.</span></h1>
+    </header>
+
+    <section class="streak-block fade-up delay-1">
+      <div class="label">Current Streak</div>
+      <div class="streak-number">47<small>days</small></div>
+      <div class="streak-meta">
+        <span>Next · <strong>50 days</strong></span>
+        <span class="up">▲ +2 vs last week</span>
+      </div>
+    </section>
+
+    <div class="section-title fade-up delay-2">
+      <h3>Today's Session</h3>
+      <button>Change session →</button>
+    </div>
+
+    <div class="plan-card fade-up delay-2">
+      <div class="plan-tag">Scheduled · 45 min</div>
+      <div class="plan-title">Upper Push A</div>
+      <div class="plan-meta">
+        <span><strong>8</strong> exercises</span>
+        <span class="dot">·</span>
+        <span><strong>24</strong> sets</span>
+        <span class="dot">·</span>
+        <span><strong>Week 3</strong> · day 2</span>
+      </div>
+      <div class="intensity">
+        <span>RPE</span>
+        <div class="intensity-bar">
+          <div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg on"></div><div class="seg"></div>
+        </div>
+        <span>Moderate</span>
+      </div>
+    </div>
+
+    <div class="section-title fade-up delay-3">
+      <h3>Train</h3>
+      <button>All modes →</button>
+    </div>
+
+    <div class="train-grid fade-up delay-3">
+      <div class="train-tile featured">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M4 8v8M20 8v8M8 6v12M16 6v12M8 12h8"/></svg>
+        </div>
+        <div><h4>Build</h4><p>Strength · 12 programmes</p></div>
+      </div>
+      <div class="train-tile">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M3 12c3-4 6-4 9 0s6 4 9 0"/></svg>
+        </div>
+        <div><h4>Cardio</h4><p>Zones · intervals</p></div>
+      </div>
+      <div class="train-tile">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <div><h4>Cable</h4><p>Single station · 6</p></div>
+      </div>
+      <!-- GOLF: golf-specific performance training -->
+      <div class="train-tile">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5"/><path d="M20 12a8 8 0 0 1-14 5"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>
+        </div>
+        <div><h4>Golf Strength</h4><p>Rotation · hips · T-spine</p></div>
+      </div>
+      <!-- STRETCH: opens Stretch Hub -->
+      <div class="train-tile" onclick="show('stretch')">
+        <span class="badge">New</span>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M3 8c3 0 3 4 6 4s3-4 6-4 3 4 6 4M3 16c3 0 3-4 6-4s3 4 6 4 3-4 6-4"/></svg>
+        </div>
+        <div><h4>Stretch</h4><p>24 routines · timer · AI</p></div>
+      </div>
+      <div class="train-tile">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5 2 8h10c0-3 2-5 2-8a7 7 0 0 0-7-7zM9 20h6M10 22h4"/></svg>
+        </div>
+        <div><h4>Recover</h4><p>Sauna · steam · cold</p></div>
+      </div>
+    </div>
+
+    <div class="section-title fade-up delay-4">
+      <h3>This Week</h3>
+      <button>Full stats →</button>
+    </div>
+
+    <div class="week-card fade-up delay-4">
+      <div class="week-head">
+        <div>
+          <div class="label">Weekly volume</div>
+          <div class="big">2:18<small>hrs</small></div>
+        </div>
+        <div class="change">▲ 18%</div>
+      </div>
+      <div class="week-bars">
+        <div class="day-bar active" style="height: 48%"></div>
+        <div class="day-bar" style="height: 12%"></div>
+        <div class="day-bar active" style="height: 64%"></div>
+        <div class="day-bar active" style="height: 38%"></div>
+        <div class="day-bar" style="height: 12%"></div>
+        <div class="day-bar active" style="height: 82%"></div>
+        <div class="day-bar today" style="height: 54%"></div>
+      </div>
+      <div class="day-labels">
+        <span>Sa</span><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span class="today">Fr</span>
+      </div>
+      <div class="week-stats">
+        <div class="week-stat"><div class="v">4</div><div class="k">Sessions</div></div>
+        <div class="week-stat"><div class="v">12.4<span style="font-size:14px;color:var(--text-dim);">k</span></div><div class="k">Total reps</div></div>
+        <div class="week-stat"><div class="v">3.2<span style="font-size:14px;color:var(--text-dim);">t</span></div><div class="k">Tonnage</div></div>
+      </div>
+    </div>
+
+    <div class="section-title fade-up delay-5"><h3>AI Coach</h3></div>
+
+    <div class="ai-card fade-up delay-5" onclick="show('stretch')">
+      <div class="ai-label">Suggested · from your data</div>
+      <h4>Your T-spine needs love before Upper Push — 8 min mobility?</h4>
+      <p>You've skipped three mobility slots this week. A short routine now will let you load today's session safely.</p>
+      <button class="ai-btn">
+        Build my routine
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <div class="lanes fade-up delay-6"></div>
+
+    <div class="section-title fade-up delay-6" style="margin-top:12px;">
+      <h3>Recent</h3>
+      <button>Log →</button>
+    </div>
+
+    <div class="recent-list fade-up delay-6">
+      <a class="recent-item">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><path d="M4 8v8M20 8v8M8 6v12M16 6v12M8 12h8"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Lower Pull B</div>
+          <div class="recent-sub">56 min · 8 exercises · RPE 7</div>
+        </div>
+        <div class="recent-time"><strong>Yest.</strong>19:10</div>
+      </a>
+      <a class="recent-item accent">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5"/><path d="M20 12a8 8 0 0 1-14 5"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Golf Strength · Rotational Power</div>
+          <div class="recent-sub">34 min · Med-ball + cable · W3</div>
+        </div>
+        <div class="recent-time"><strong>Wed</strong>16:45</div>
+      </a>
+      <a class="recent-item">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5 2 8h10c0-3 2-5 2-8a7 7 0 0 0-7-7z"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Steam · Sauna · Cold</div>
+          <div class="recent-sub">Recovery · 22 min</div>
+        </div>
+        <div class="recent-time"><strong>Tue</strong>21:02</div>
+      </a>
+      <a class="recent-item">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><path d="M3 8c3 0 3 4 6 4s3-4 6-4 3 4 6 4M3 16c3 0 3-4 6-4s3 4 6 4 3-4 6-4"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Morning Mobility</div>
+          <div class="recent-sub">12 min · T-spine + hips</div>
+        </div>
+        <div class="recent-time"><strong>Tue</strong>07:20</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- STRETCH HUB -->
+  <section class="screen" id="screen-stretch">
+    <div class="top-bar">
+      <button class="icon-btn" onclick="show('home')" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="title-block">
+        <div class="sub">Routines</div>
+        <h2>Stretch</h2>
+      </div>
+      <div class="streak-mini">12 DAY</div>
+    </div>
+
+    <div class="hub-hero fade-up">
+      <div class="hub-hero-tag">Today's Pick · AI matched</div>
+      <div class="hub-hero-title">Pre-Lift<br><span class="accent">Warm-up.</span></div>
+      <div class="hub-hero-why">
+        Rotation, T-spine and hip openers calibrated for your Upper Push session today. 12 stretches, every duration adjustable.
+      </div>
+      <div class="hub-hero-meta">
+        <span><strong>8</strong> min</span>
+        <div class="dot-divider"></div>
+        <span><strong>12</strong> stretches</span>
+        <div class="dot-divider"></div>
+        <span><strong>Beginner</strong></span>
+      </div>
+      <button class="start-btn" onclick="show('player')">
+        <svg viewBox="0 0 24 24"><path d="M8 5l12 7-12 7z"/></svg>
+        Start routine
+      </button>
+      <div class="hub-hero-figure">
+        <svg viewBox="0 0 100 100" stroke="#95BFE5" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="50" cy="20" r="8"/>
+          <path d="M50 28 L50 58"/>
+          <path d="M50 38 L30 50 M50 38 L72 32"/>
+          <path d="M50 58 L38 84 M50 58 L66 86"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="section-title fade-up delay-1">
+      <h3>Browse Routines</h3>
+      <button>Library →</button>
+    </div>
+
+    <div class="cat-grid fade-up delay-1">
+      <div class="cat-tile" onclick="show('player')">
+        <div class="cat-fig">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="40" cy="16" r="6"/>
+            <path d="M40 22 L40 48"/>
+            <path d="M40 30 L28 20 M40 30 L52 20"/>
+            <path d="M40 48 L30 68 M40 48 L50 68"/>
+          </svg>
+        </div>
+        <div><h4>Wake Up</h4><p>3–8 min · 6 routines</p></div>
+      </div>
+      <div class="cat-tile" onclick="show('player')">
+        <div class="cat-fig">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="40" cy="22" r="6"/>
+            <path d="M40 28 L40 52"/>
+            <path d="M40 36 L22 40 M40 36 L58 40"/>
+            <path d="M40 52 L28 70 M40 52 L52 70"/>
+            <path d="M22 40 L16 32 M58 40 L64 32"/>
+          </svg>
+        </div>
+        <div><h4>Post-Lift</h4><p>8–15 min · 5 routines</p></div>
+      </div>
+      <div class="cat-tile" onclick="show('player')">
+        <div class="cat-fig">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="40" cy="20" r="6"/>
+            <path d="M40 26 L40 46 L26 60"/>
+            <path d="M40 46 L56 60"/>
+            <path d="M40 32 L28 38 M40 32 L52 36"/>
+            <path d="M18 62 L62 62"/>
+          </svg>
+        </div>
+        <div><h4>Desk Reset</h4><p>4–6 min · 4 routines</p></div>
+      </div>
+      <div class="cat-tile" onclick="show('player')">
+        <div class="cat-fig">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="40" cy="18" r="6"/>
+            <path d="M40 24 L40 50"/>
+            <path d="M40 32 L22 26 M40 32 L60 40"/>
+            <path d="M40 50 L30 72 M40 50 L54 70"/>
+            <path d="M14 40 Q14 30 22 26" stroke-dasharray="2 3"/>
+          </svg>
+        </div>
+        <div><h4>Pre-Golf</h4><p>6–12 min · 4 routines</p></div>
+      </div>
+      <div class="cat-tile" onclick="show('player')">
+        <div class="cat-fig">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="22" cy="42" r="5"/>
+            <path d="M27 42 L58 50"/>
+            <path d="M58 50 L64 60"/>
+            <path d="M30 44 L22 58 M36 48 L32 62"/>
+            <path d="M10 60 L70 60"/>
+          </svg>
+        </div>
+        <div><h4>Wind Down</h4><p>10–15 min · 3 routines</p></div>
+      </div>
+      <div class="cat-tile" onclick="show('player')">
+        <div class="cat-fig">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="40" cy="16" r="6"/>
+            <path d="M40 22 L40 48"/>
+            <path d="M40 30 L24 22 M40 30 L56 22"/>
+            <path d="M40 48 L32 70 M40 48 L50 70"/>
+            <path d="M24 22 L20 14 M56 22 L60 14"/>
+          </svg>
+        </div>
+        <div><h4>Posture</h4><p>5–10 min · 5 routines</p></div>
+      </div>
+    </div>
+
+    <div class="section-title fade-up delay-2"><h3>Build With AI</h3></div>
+
+    <div class="ai-builder fade-up delay-2">
+      <div class="ai-builder-label">Describe your goal</div>
+      <h4>Tell me what you need.</h4>
+      <p class="hint">Describe any tightness, sport, or session — get a custom routine in seconds.</p>
+      <div class="ai-input-wrap">
+        <textarea placeholder="e.g. My lower back's stiff after sitting at a laptop for six hours..."></textarea>
+      </div>
+      <div class="ai-suggestions">
+        <button class="ai-chip">Tight hips from sitting</button>
+        <button class="ai-chip">Golf warm-up · 10 min</button>
+        <button class="ai-chip">Post-deadlift</button>
+        <button class="ai-chip">Neck + shoulders</button>
+      </div>
+      <button class="ai-build-btn" onclick="show('player')">
+        Build routine
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <div class="section-title fade-up delay-3"><h3>Recently Done</h3></div>
+
+    <div class="recent-list fade-up delay-3">
+      <a class="recent-item accent">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="3"/><path d="M12 9v8M8 13h8M8 21h8"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Morning Mobility</div>
+          <div class="recent-sub">12 min · T-spine + hips</div>
+        </div>
+        <div class="recent-time"><strong>Tue</strong>07:20</div>
+      </a>
+      <a class="recent-item">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><path d="M3 12h18M6 6l-3 6 3 6M18 6l3 6-3 6"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Post-Lift Cool Down</div>
+          <div class="recent-sub">8 min · Upper body</div>
+        </div>
+        <div class="recent-time"><strong>Mon</strong>20:05</div>
+      </a>
+      <a class="recent-item">
+        <div class="recent-icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5"/><path d="M20 12a8 8 0 0 1-14 5"/></svg></div>
+        <div class="recent-info">
+          <div class="recent-title">Pre-Round · Golf</div>
+          <div class="recent-sub">10 min · Rotation focus</div>
+        </div>
+        <div class="recent-time"><strong>Sat</strong>09:40</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- STRETCH PLAYER -->
+  <section class="screen" id="screen-player">
+    <div class="player">
+      <div class="player-top">
+        <button class="icon-btn" onclick="show('stretch')" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <div class="player-title">
+          <div class="series">Pre-Lift Warm-up</div>
+          <h2>Stretch 3 / 12</h2>
+        </div>
+        <button class="icon-btn" aria-label="Info">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8v.01"/></svg>
+        </button>
+      </div>
+
+      <div class="progress-segs fade-up">
+        <div class="seg done"></div><div class="seg done"></div><div class="seg active"></div>
+        <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+        <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+        <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+      </div>
+
+      <div class="stage fade-up delay-1">
+        <div class="stretch-name">Deep Squat Hold</div>
+        <div class="stretch-muscles">
+          <span class="muscle-chip">Hips</span>
+          <span class="muscle-chip">Ankles</span>
+          <span class="muscle-chip">T-spine</span>
+        </div>
+
+        <div class="figure-box">
+          <svg viewBox="0 0 120 120">
+            <path d="M10 100 L110 100" opacity="0.25" stroke-dasharray="2 4"/>
+            <circle cx="60" cy="30" r="8"/>
+            <path d="M60 38 L58 62"/>
+            <path d="M58 48 L42 60 L38 72"/>
+            <path d="M58 48 L78 60 L82 72"/>
+            <path d="M58 62 L38 74 L40 98"/>
+            <path d="M58 62 L78 74 L80 98"/>
+            <path d="M35 98 L48 98"/>
+            <path d="M75 98 L88 98"/>
+            <circle cx="60" cy="30" r="14" stroke-dasharray="2 4" opacity="0.25"/>
+          </svg>
+        </div>
+
+        <p class="stretch-instruction">
+          Sink into a deep squat with feet flat. Press knees outward with elbows. Lift chest, breathe deeply through the nose.
+        </p>
+      </div>
+
+      <div class="timer-wrap fade-up delay-2">
+        <div class="timer-ring">
+          <svg viewBox="0 0 180 180">
+            <circle class="track" cx="90" cy="90" r="80"/>
+            <circle class="progress" id="progressRing" cx="90" cy="90" r="80"/>
+          </svg>
+          <div class="timer-num">
+            <span id="timerValue">0:28</span>
+            <small>Remaining</small>
+          </div>
+        </div>
+
+        <div class="duration-adjust">
+          <button class="dur-btn" aria-label="Less time">−</button>
+          <span>Adjust · 45s</span>
+          <button class="dur-btn" aria-label="More time">+</button>
+        </div>
+      </div>
+
+      <div class="player-controls fade-up delay-3">
+        <button class="ctrl-btn" aria-label="Previous">
+          <svg viewBox="0 0 24 24"><path d="M18 5v14l-10-7zM6 5v14" stroke="currentColor" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="ctrl-btn ctrl-play" aria-label="Pause">
+          <svg viewBox="0 0 24 24"><rect x="7" y="5" width="4" height="14" rx="1"/><rect x="13" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+        <button class="ctrl-btn" aria-label="Next">
+          <svg viewBox="0 0 24 24"><path d="M6 5v14l10-7zM18 5v14" stroke="currentColor" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="up-next fade-up delay-3">
+        <span class="next-label">Next</span>
+        <span class="next-name">90/90 Hip Stretch</span>
+        <span class="next-time">45s</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-btn active" onclick="show('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/></svg>
+      Today
+    </button>
+    <button class="nav-btn">
+      <svg viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg>
+      Train
+    </button>
+    <button class="nav-ai" aria-label="AI Coach">AI</button>
+    <button class="nav-btn">
+      <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>
+      Stats
+    </button>
+    <button class="nav-btn">
+      <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+      More
+    </button>
+  </div>
+</nav>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  window.addEventListener('load', () => {
+    const bars = document.querySelectorAll('.day-bar');
+    bars.forEach((b, i) => {
+      const finalHeight = b.style.height;
+      b.style.height = '5px';
+      setTimeout(() => { b.style.height = finalHeight; }, 600 + i * 70);
+    });
+
+    const streak = document.querySelector('.streak-number');
+    if (streak) {
+      const target = 47;
+      let current = 0;
+      const increment = Math.ceil(target / 24);
+      const tick = () => {
+        current = Math.min(current + increment, target);
+        streak.childNodes[0].nodeValue = current;
+        if (current < target) requestAnimationFrame(tick);
+      };
+      setTimeout(tick, 250);
+    }
+
+    setTimeout(() => {
+      const ring = document.getElementById('progressRing');
+      if (ring) {
+        const offset = 502 - (502 * 0.62);
+        ring.style.strokeDashoffset = offset;
+      }
+    }, 400);
+  });
+</script>
+
+</body>
+</html>

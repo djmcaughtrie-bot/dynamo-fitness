@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Today · Adaptive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+    --accent: #95BFE5;
+    --accent-dim: #6FA0CC;
+    --warm: #E8B473;
+    --orange: #FF7A3D;
+    --green: #3CE89C;
+    --red: #FF4A5E;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 120px;
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+
+  /* ---------- Status row ---------- */
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .adaptive-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(149, 191, 229, 0.08);
+    border: 1px solid rgba(149, 191, 229, 0.25);
+    border-radius: 100px;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .adaptive-chip::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  /* ---------- Hero greeting ---------- */
+  header.hero { padding: 14px 22px 20px; }
+  .greeting-small {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .greeting-small::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--accent);
+  }
+  .greeting {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .greeting .soft {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 900;
+  }
+  .greeting-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-top: 14px;
+    max-width: 32ch;
+  }
+
+  /* ---------- Check-in hero ---------- */
+  .checkin {
+    margin: 22px 22px 0;
+    background:
+      radial-gradient(circle at 110% -10%, rgba(149,191,229,0.10), transparent 55%),
+      var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .checkin-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .checkin-label .right { color: var(--text-muted); }
+  .checkin-q {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    margin-bottom: 18px;
+  }
+  .checkin-row {
+    margin-bottom: 18px;
+  }
+  .checkin-row:last-of-type { margin-bottom: 0; }
+  .checkin-row-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+  }
+  .checkin-row-label .value {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Segmented scale */
+  .scale {
+    display: flex;
+    gap: 5px;
+  }
+  .scale-seg {
+    flex: 1;
+    height: 34px;
+    background: var(--surface-3);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: all 0.18s;
+    letter-spacing: 0.1em;
+  }
+  .scale-seg.active {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+  .scale-seg.filled {
+    background: rgba(149, 191, 229, 0.12);
+    color: var(--text-dim);
+  }
+
+  /* Joint flag pills */
+  .joints {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .joint {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .joint.flagged {
+    background: rgba(232, 180, 115, 0.1);
+    border-color: rgba(232, 180, 115, 0.35);
+    color: var(--warm);
+  }
+  .joint.flagged.severe {
+    background: rgba(255, 122, 61, 0.12);
+    border-color: rgba(255, 122, 61, 0.4);
+    color: var(--orange);
+  }
+
+  .checkin-done {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .checkin-done .tick {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .checkin-done .tick svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .checkin-done strong { color: var(--text); font-weight: 500; }
+
+  /* ---------- Section titles ---------- */
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 22px;
+    margin: 32px 0 12px;
+  }
+  .section-title h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 19px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title h3::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .section-title a {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* ---------- Rec card ---------- */
+  .rec-card {
+    margin: 0 22px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 20px 22px 20px 26px;
+    position: relative;
+    overflow: hidden;
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .rec-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20px; bottom: 20px;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .rec-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: rgba(149, 191, 229, 0.1);
+    color: var(--accent);
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 14px;
+    border: 1px solid rgba(149, 191, 229, 0.2);
+  }
+  .rec-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 36px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    margin-bottom: 12px;
+  }
+  .rec-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+    flex-wrap: wrap;
+  }
+  .rec-meta strong { color: var(--text); font-weight: 500; }
+  .rec-reason {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
+  .rec-reason strong { color: var(--accent); font-weight: 500; }
+
+  .rec-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+  .rec-primary {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 16px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .rec-primary svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .rec-alt {
+    background: var(--surface-3);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 15px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .rec-defer {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border-radius: 12px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rec-defer svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .rec-defer strong { color: var(--text-dim); font-weight: 500; }
+
+  /* ---------- Hydration strip ---------- */
+  .hydration {
+    margin: 16px 22px 0;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .hydro-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .hydro-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .hydro-val {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .hydro-val .target {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-left: 2px;
+  }
+  .hydro-add {
+    background: rgba(149, 191, 229, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(149, 191, 229, 0.25);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .hydro-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .hydro-cell {
+    flex: 1;
+    height: 7px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .hydro-cell.on {
+    background: var(--accent);
+  }
+  .hydro-note {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+  }
+  .hydro-note strong { color: var(--text-dim); font-weight: 500; }
+
+  /* ---------- Options grid ---------- */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 22px;
+  }
+  .option-tile {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 16px;
+    aspect-ratio: 1.3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s;
+  }
+  .option-tile:active { transform: scale(0.98); }
+  .option-tile .icon {
+    width: 38px; height: 38px;
+    background: var(--surface-3);
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+  .option-tile .icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .option-tile h4 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .option-tile p {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .option-tile.suggested {
+    background:
+      linear-gradient(135deg, rgba(149,191,229,0.07), transparent 60%),
+      var(--surface);
+    border-color: rgba(149, 191, 229, 0.22);
+  }
+  .option-tile.suggested .icon {
+    background: var(--accent);
+    color: #000;
+  }
+  .option-tile.suggested h4 { color: var(--accent); }
+  .option-tile .badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .option-tile.muted {
+    opacity: 0.45;
+  }
+  .option-tile.muted .badge {
+    color: var(--warm);
+  }
+
+  /* ---------- Smart streak ---------- */
+  .streak-card {
+    margin: 0 22px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .streak-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .streak-big {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 48px;
+    line-height: 0.9;
+    letter-spacing: -0.025em;
+  }
+  .streak-big .u {
+    font-size: 15px;
+    color: var(--text-dim);
+    font-weight: 600;
+    margin-left: 4px;
+    letter-spacing: 0.04em;
+  }
+  .streak-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+  .streak-label strong {
+    display: block;
+    color: var(--accent);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .streak-credits {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+  .credit {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .credit::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .credit.off::before { background: var(--surface-3); }
+  .credit.off { color: var(--text-muted); }
+
+  /* ---------- Flare log ---------- */
+  .flare-card {
+    margin: 0 22px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+  .flare-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .flare-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .flare-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .flare-arrow {
+    color: var(--text-muted);
+  }
+  .flare-arrow svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .flare-timeline {
+    display: flex;
+    gap: 3px;
+    height: 22px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .flare-day {
+    flex: 1;
+    height: 14px;
+    background: var(--surface-3);
+    border-radius: 2px;
+  }
+  .flare-day.flare { background: rgba(255, 122, 61, 0.55); }
+  .flare-day.recovering { background: rgba(232, 180, 115, 0.45); }
+  .flare-day.clear { background: rgba(149, 191, 229, 0.35); }
+  .flare-day.today {
+    background: var(--accent);
+    height: 22px;
+    box-shadow: 0 0 8px rgba(149,191,229,0.5);
+  }
+  .flare-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .flare-legend-dots {
+    display: flex;
+    gap: 10px;
+  }
+  .flare-legend-dots span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .flare-legend-dots .sw {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 2px;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    padding: 14px 18px 26px;
+    background: linear-gradient(to top, var(--bg) 55%, rgba(11,11,12,0.85) 80%, transparent);
+    display: flex;
+    justify-content: center;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .bottom-nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(20,20,22,0.92);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px;
+    width: 100%;
+    pointer-events: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 0 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .nav-btn.active { color: var(--text); }
+  .nav-btn.active svg { stroke: var(--accent); }
+  .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .nav-ai {
+    width: 58px; height: 58px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 21px;
+    border: none;
+    box-shadow: 0 8px 28px rgba(149, 191, 229, 0.35);
+    margin: -18px 2px;
+  }
+
+  /* Animations */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.6s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.1s; }
+  .delay-3 { animation-delay: 0.15s; }
+  .delay-4 { animation-delay: 0.2s; }
+  .delay-5 { animation-delay: 0.25s; }
+  .delay-6 { animation-delay: 0.3s; }
+
+  @media (min-width: 431px) {
+    .app {
+      margin-top: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border-soft);
+      border-radius: 32px;
+      overflow: hidden;
+      min-height: calc(100vh - 48px);
+    }
+    .bottom-nav { border-radius: 0 0 32px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="status-row">
+    <span>FRI 17 APR · 08:42 BST</span>
+    <a href="#" class="adaptive-chip">Adaptive · On</a>
+  </div>
+
+  <header class="hero fade-up">
+    <div class="greeting-small">Morning, Dave</div>
+    <h1 class="greeting">Steady<br><span class="soft">does it.</span></h1>
+    <div class="greeting-sub">You flagged left foot and lower energy. Today's tuned to match — nothing that'll set you back.</div>
+  </header>
+
+  <!-- Readiness check-in (already logged state) -->
+  <section class="checkin fade-up delay-1">
+    <div class="checkin-label">
+      <span>Readiness · logged</span>
+      <span class="right">Edit →</span>
+    </div>
+    <div class="checkin-q">This morning</div>
+
+    <div class="checkin-row">
+      <div class="checkin-row-label">
+        <span>Energy</span>
+        <span class="value">2 / 5 · low</span>
+      </div>
+      <div class="scale">
+        <div class="scale-seg filled">1</div>
+        <div class="scale-seg active">2</div>
+        <div class="scale-seg">3</div>
+        <div class="scale-seg">4</div>
+        <div class="scale-seg">5</div>
+      </div>
+    </div>
+
+    <div class="checkin-row">
+      <div class="checkin-row-label">
+        <span>Joints · flagged</span>
+        <span class="value">1 active</span>
+      </div>
+      <div class="joints">
+        <div class="joint flagged severe">● Left big toe</div>
+        <div class="joint flagged">Left ankle · mild</div>
+        <div class="joint">Knees</div>
+        <div class="joint">Hands</div>
+        <div class="joint">+ add</div>
+      </div>
+    </div>
+
+    <div class="checkin-row">
+      <div class="checkin-row-label">
+        <span>Sleep</span>
+        <span class="value">6h 12 · fair</span>
+      </div>
+      <div class="scale">
+        <div class="scale-seg filled">1</div>
+        <div class="scale-seg filled">2</div>
+        <div class="scale-seg active">3</div>
+        <div class="scale-seg">4</div>
+        <div class="scale-seg">5</div>
+      </div>
+    </div>
+
+    <div class="checkin-done">
+      <div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+      <span>Logged at <strong>08:38</strong> · feeds today's plan</span>
+    </div>
+  </section>
+
+  <div class="section-title fade-up delay-2">
+    <h3>Today's suggestion</h3>
+    <a href="#">Change →</a>
+  </div>
+
+  <a href="#" class="rec-card fade-up delay-2">
+    <div class="rec-tag">● Adapted · 25 min · low joint-load</div>
+    <div class="rec-title">Pool + Upper<br>Mobility</div>
+    <div class="rec-meta">
+      <span><strong>Zero impact</strong> on foot</span>
+      <span>·</span>
+      <span><strong>RPE 3 – 4</strong></span>
+      <span>·</span>
+      <span>Stop any time</span>
+    </div>
+
+    <div class="rec-reason">
+      <strong>Why this:</strong> Your flagged left toe means loaded standing is off the table. Water offloads the joint entirely — and you've got a pool. Paired with gentle upper-body mobility. <strong>Your Upper Push A is deferred, not missed.</strong>
+    </div>
+
+    <div class="rec-actions">
+      <button class="rec-primary">
+        Start
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <button class="rec-alt">Skip today</button>
+    </div>
+
+    <div class="rec-defer">
+      <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9"/></svg>
+      <span><strong>Upper Push A</strong> rescheduled to Monday · programme stays on track</span>
+    </div>
+  </a>
+
+  <section class="hydration fade-up delay-3">
+    <div class="hydro-head">
+      <div>
+        <div class="hydro-label">Water today</div>
+        <div class="hydro-val">1.4<span class="target">/ 3L target</span></div>
+      </div>
+      <button class="hydro-add">+ 250ml</button>
+    </div>
+    <div class="hydro-bar">
+      <div class="hydro-cell on"></div>
+      <div class="hydro-cell on"></div>
+      <div class="hydro-cell on"></div>
+      <div class="hydro-cell on"></div>
+      <div class="hydro-cell on"></div>
+      <div class="hydro-cell on"></div>
+      <div class="hydro-cell"></div>
+      <div class="hydro-cell"></div>
+      <div class="hydro-cell"></div>
+      <div class="hydro-cell"></div>
+      <div class="hydro-cell"></div>
+      <div class="hydro-cell"></div>
+    </div>
+    <div class="hydro-note">Target lifted <strong>+500ml</strong> during active flares · helps flush uric acid</div>
+  </section>
+
+  <div class="section-title fade-up delay-4">
+    <h3>What's on the table</h3>
+    <a href="#">All →</a>
+  </div>
+
+  <div class="options-grid fade-up delay-4">
+
+    <a href="#" class="option-tile suggested">
+      <span class="badge">Suggested</span>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M2 12c3 0 3 3 6 3s3-3 6-3 3 3 6 3 3-3 4-3M2 17c3 0 3 3 6 3s3-3 6-3 3 3 6 3 3-3 4-3"/></svg>
+      </div>
+      <div>
+        <h4>Pool</h4>
+        <p>Zero load · 20 min</p>
+      </div>
+    </a>
+
+    <a href="#" class="option-tile suggested">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M3 8c3 0 3 4 6 4s3-4 6-4 3 4 6 4M3 16c3 0 3-4 6-4s3 4 6 4 3-4 6-4" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h4>Mobility</h4>
+        <p>Upper · seated · 12 min</p>
+      </div>
+    </a>
+
+    <a href="#" class="option-tile">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h4>Breathing</h4>
+        <p>Parasympathetic · 6 min</p>
+      </div>
+    </a>
+
+    <a href="#" class="option-tile">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7c0 3 2 5 2 8h10c0-3 2-5 2-8a7 7 0 0 0-7-7zM9 20h6M10 22h4"/></svg>
+      </div>
+      <div>
+        <h4>Sauna</h4>
+        <p>Recovery · 15 min</p>
+      </div>
+    </a>
+
+    <a href="#" class="option-tile muted">
+      <span class="badge">Not today</span>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg>
+      </div>
+      <div>
+        <h4>Build</h4>
+        <p>Hold · foot flag</p>
+      </div>
+    </a>
+
+    <a href="#" class="option-tile muted">
+      <span class="badge">Not today</span>
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg>
+      </div>
+      <div>
+        <h4>Golf</h4>
+        <p>Hold · walking load</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-title fade-up delay-5">
+    <h3>Smart streak</h3>
+    <a href="#">How it works →</a>
+  </div>
+
+  <section class="streak-card fade-up delay-5">
+    <div class="streak-head">
+      <div>
+        <div class="streak-big">23<span class="u">days</span></div>
+      </div>
+      <div class="streak-label">
+        On track
+        <strong>+ rest still counts</strong>
+      </div>
+    </div>
+    <div class="streak-credits">
+      <span class="credit">Check-in</span>
+      <span class="credit">Hydration</span>
+      <span class="credit">Any movement</span>
+      <span class="credit">Mobility</span>
+      <span class="credit off">Full session</span>
+    </div>
+  </section>
+
+  <div class="section-title fade-up delay-6">
+    <h3>Flare log</h3>
+    <a href="#">Full history →</a>
+  </div>
+
+  <a href="#" class="flare-card fade-up delay-6">
+    <div class="flare-head">
+      <div>
+        <div class="flare-title">Current Episode</div>
+        <div class="flare-sub">Started Wed · day 3 of 5 avg</div>
+      </div>
+      <div class="flare-arrow">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="flare-timeline">
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day clear"></div>
+      <div class="flare-day flare"></div>
+      <div class="flare-day flare"></div>
+      <div class="flare-day flare"></div>
+      <div class="flare-day flare"></div>
+      <div class="flare-day today"></div>
+    </div>
+    <div class="flare-legend">
+      <span>14 days</span>
+      <div class="flare-legend-dots">
+        <span><span class="sw" style="background: rgba(149,191,229,0.35);"></span> Clear</span>
+        <span><span class="sw" style="background: rgba(232,180,115,0.45);"></span> Recovering</span>
+        <span><span class="sw" style="background: rgba(255,122,61,0.55);"></span> Flare</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-btn active">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z" stroke-linejoin="round"/></svg>
+      Today
+    </button>
+    <button class="nav-btn">
+      <svg viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg>
+      Train
+    </button>
+    <button class="nav-ai">AI</button>
+    <button class="nav-btn">
+      <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2" stroke-linecap="round"/></svg>
+      Stats
+    </button>
+    <button class="nav-btn">
+      <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+      More
+    </button>
+  </div>
+</nav>
+
+<script>
+  document.querySelectorAll('a[href="#"], .rec-primary, .rec-alt, .hydro-add').forEach(el => {
+    el.addEventListener('click', e => {
+      if (el.tagName === 'A') e.preventDefault();
+    });
+  });
+</script>
+
+</body>
+</html>

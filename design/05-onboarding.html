@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<title>FitTrack — Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --surface: #141416;
+    --surface-2: #1B1B1E;
+    --surface-3: #26262A;
+    --border: #2A2A2E;
+    --border-soft: #1E1E22;
+    --text: #FAFAF5;
+    --text-dim: #8E8E94;
+    --text-muted: #54545A;
+    --accent: #95BFE5;
+    --accent-dim: #6FA0CC;
+    --orange: #FF7A3D;
+    --green: #3CE89C;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-ui: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-feature-settings: "ss01", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    height: 100%;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  /* ---------- Screen container ---------- */
+  .screen {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(.2,.8,.2,1);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(6px);
+    overflow-y: auto;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* ---------- Top bar (reused) ---------- */
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px 8px;
+  }
+  .back-btn {
+    width: 36px; height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .progress {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 0 8px rgba(149,191,229,0.4);
+  }
+  .step-counter {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    flex-shrink: 0;
+    min-width: 40px;
+    text-align: right;
+  }
+  .skip-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* ---------- Content layout ---------- */
+  .content {
+    flex: 1;
+    padding: 20px 22px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--accent);
+  }
+  h1.q {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 54px;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1.q .accent { color: var(--accent); font-style: italic; }
+  .lead {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    max-width: 34ch;
+  }
+
+  /* ---------- Bottom CTA ---------- */
+  .cta-bar {
+    padding: 14px 22px 28px;
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    position: sticky;
+    bottom: 0;
+  }
+  .cta {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 16px;
+    padding: 18px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(149, 191, 229, 0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+    transition: transform 0.1s, opacity 0.2s;
+  }
+  .cta:disabled {
+    background: var(--surface-3);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .cta:not(:disabled):active { transform: scale(0.985); }
+  .cta svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- Welcome screen (breaks pattern) ---------- */
+  .welcome {
+    padding: 0 22px;
+    justify-content: space-between;
+    position: relative;
+  }
+  .welcome-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .welcome-bg::before {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(149,191,229,0.12), transparent 60%);
+    pointer-events: none;
+  }
+  .welcome-top {
+    padding-top: 60px;
+    position: relative;
+  }
+  .welcome-brand {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .welcome-brand .dot {
+    color: var(--accent);
+    margin: 0 8px;
+  }
+  .welcome-hero {
+    position: relative;
+    z-index: 2;
+    padding-top: 20px;
+  }
+  .welcome-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 96px;
+    line-height: 0.82;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .welcome-title .accent { color: var(--accent); font-style: italic; }
+  .welcome-sub {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    max-width: 30ch;
+  }
+  .welcome-orbit {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px; height: 320px;
+    border: 1px dashed rgba(149,191,229,0.2);
+    border-radius: 50%;
+    animation: orbit 40s linear infinite;
+  }
+  .welcome-orbit::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: -4px;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+  .welcome-orbit-2 {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px; height: 420px;
+    border: 1px dashed rgba(149,191,229,0.08);
+    border-radius: 50%;
+    animation: orbit 60s linear infinite reverse;
+  }
+  @keyframes orbit {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  .welcome-footer {
+    padding-bottom: 32px;
+    position: relative;
+    z-index: 2;
+  }
+  .welcome-signin {
+    text-align: center;
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+  .welcome-signin a {
+    color: var(--accent);
+    text-decoration: none;
+    margin-left: 4px;
+  }
+
+  /* ---------- Text input ---------- */
+  .text-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .text-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(149,191,229,0.08);
+  }
+  .text-input::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .input-hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  /* ---------- Option cards ---------- */
+  .opts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .opt {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    font-family: var(--font-ui);
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .opt:hover { border-color: var(--border); }
+  .opt.selected {
+    border-color: var(--accent);
+    background:
+      linear-gradient(135deg, rgba(149,191,229,0.08), transparent 55%),
+      var(--surface);
+  }
+  .opt.featured {
+    border-color: rgba(149,191,229,0.22);
+  }
+  .opt.featured::before {
+    content: 'Featured';
+    position: absolute;
+    top: 10px; right: 12px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .opt-icon {
+    width: 44px; height: 44px;
+    background: var(--surface-3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .opt.selected .opt-icon {
+    background: var(--accent);
+    color: #000;
+  }
+  .opt-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .opt-info { flex: 1; min-width: 0; }
+  .opt-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .opt-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .opt-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .opt.selected .opt-check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .opt-check svg {
+    width: 12px; height: 12px;
+    stroke: #000;
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .opt.selected .opt-check svg { opacity: 1; }
+
+  /* ---------- Frequency picker ---------- */
+  .freq-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .freq-btn {
+    flex: 1;
+    aspect-ratio: 1;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 32px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    transition: all 0.18s;
+  }
+  .freq-btn.selected {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    box-shadow: 0 6px 18px rgba(149,191,229,0.2);
+  }
+  .freq-caption {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+  }
+  .freq-caption strong {
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 6px;
+  }
+
+  /* ---------- Chip multi-select ---------- */
+  .chips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ms-chip {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 100px;
+    padding: 11px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ms-chip.selected {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .ms-chip.none {
+    margin-left: auto;
+    opacity: 0.8;
+  }
+
+  /* ---------- Units toggle ---------- */
+  .unit-toggle {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 6px;
+    display: flex;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .unit-opt {
+    flex: 1;
+    padding: 22px 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    transition: color 0.25s;
+  }
+  .unit-opt.selected { color: #000; }
+  .unit-slide {
+    position: absolute;
+    top: 6px; bottom: 6px;
+    width: calc(50% - 6px);
+    background: var(--accent);
+    border-radius: 11px;
+    transition: left 0.3s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 4px 14px rgba(149,191,229,0.22);
+  }
+  .unit-slide.lb { left: calc(50% + 0px); }
+  .unit-slide.kg { left: 6px; }
+  .unit-sample {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .unit-sample .label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .unit-sample .val {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: -0.015em;
+    color: var(--accent);
+  }
+
+  /* ---------- Calibrating loader ---------- */
+  .calibrating {
+    padding: 0 22px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .calib-ring {
+    width: 120px; height: 120px;
+    position: relative;
+    margin: 0 auto 32px;
+  }
+  .calib-ring svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .calib-ring .t { fill: none; stroke: var(--surface-3); stroke-width: 3; }
+  .calib-ring .p {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 94.2 282.7;
+    animation: spin 1.2s linear infinite;
+    transform-origin: center;
+  }
+  @keyframes spin {
+    to { stroke-dashoffset: -376.99; }
+  }
+  .calib-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .calib-msg {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 32px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- Summary ---------- */
+  .summary-hero {
+    margin-bottom: 22px;
+  }
+  .summary-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--accent);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .summary-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .summary-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 72px;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .summary-title .accent { color: var(--accent); font-style: italic; }
+
+  .sum-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 10px;
+  }
+  .sum-card.primary {
+    background:
+      radial-gradient(circle at 110% -10%, rgba(149,191,229,0.1), transparent 55%),
+      var(--surface);
+    border-color: rgba(149,191,229,0.22);
+    position: relative;
+    overflow: hidden;
+  }
+  .sum-card.primary::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 18px; bottom: 18px;
+    width: 3px;
+    background: var(--accent);
+  }
+  .sum-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .sum-value {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 28px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .sum-meta {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sum-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ========== SCREEN 0: WELCOME ========== -->
+  <div class="screen welcome active" data-step="0">
+    <div class="welcome-bg">
+      <div class="welcome-orbit-2"></div>
+      <div class="welcome-orbit"></div>
+    </div>
+    <div class="welcome-top">
+      <div class="welcome-brand">FitTrack<span class="dot">·</span>EST 2026</div>
+    </div>
+    <div class="welcome-hero">
+      <div class="welcome-title">Train<br>like you<br><span class="accent">mean it.</span></div>
+      <div class="welcome-sub">Personal programming that calibrates to your body, your schedule, your data. No filler.</div>
+    </div>
+    <div class="welcome-footer">
+      <button class="cta" onclick="advance()">
+        Begin setup
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="welcome-signin">Already have an account? <a href="#">Sign in</a></div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 1: NAME ========== -->
+  <div class="screen" data-step="1">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 12%"></div></div>
+      <span class="step-counter">01/08</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 01</div>
+      <h1 class="q">What should<br>we <span class="accent">call you?</span></h1>
+      <div class="lead">This shows up everywhere — greetings, records, shared logs.</div>
+      <input type="text" class="text-input" id="nameIn" placeholder="Your name" autocomplete="name" value="Dave">
+      <div class="input-hint">You can change this later in settings</div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 2: FOCUS ========== -->
+  <div class="screen" data-step="2">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 25%"></div></div>
+      <span class="step-counter">02/08</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 02 · Primary focus</div>
+      <h1 class="q">What are you<br><span class="accent">training for?</span></h1>
+      <div class="lead">Programmes and suggestions will orient around this. Pick one.</div>
+      <div class="opts" data-group="focus">
+        <button class="opt" data-val="strength">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M4 9v6M20 9v6M8 7v10M16 7v10M8 12h8"/></svg></div>
+          <div class="opt-info">
+            <div class="opt-title">Strength & Muscle</div>
+            <div class="opt-sub">Build size · hit PRs</div>
+          </div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt featured" data-val="golf">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div>
+          <div class="opt-info">
+            <div class="opt-title">Golf Performance</div>
+            <div class="opt-sub">Grieve · rotational · mobility</div>
+          </div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="conditioning">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M3 12c3-4 6-4 9 0s6 4 9 0" stroke-linecap="round"/></svg></div>
+          <div class="opt-info">
+            <div class="opt-title">Fat Loss & Conditioning</div>
+            <div class="opt-sub">Lean up · build engine</div>
+          </div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="general">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14c1.5 1.5 6.5 1.5 8 0"/></svg></div>
+          <div class="opt-info">
+            <div class="opt-title">General Fitness</div>
+            <div class="opt-sub">Stay in the game</div>
+          </div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="longevity">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M3 8c3 0 3 4 6 4s3-4 6-4 3 4 6 4M3 16c3 0 3-4 6-4s3 4 6 4 3-4 6-4" stroke-linecap="round"/></svg></div>
+          <div class="opt-info">
+            <div class="opt-title">Recovery & Longevity</div>
+            <div class="opt-sub">Mobility · durability</div>
+          </div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()" disabled>Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 3: EXPERIENCE ========== -->
+  <div class="screen" data-step="3">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 37%"></div></div>
+      <span class="step-counter">03/08</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 03 · Experience</div>
+      <h1 class="q">How long have you<br>been <span class="accent">training?</span></h1>
+      <div class="lead">Starting weights and volume are calibrated to this.</div>
+      <div class="opts" data-group="experience">
+        <button class="opt" data-val="novice">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Just Starting</div><div class="opt-sub">Less than 1 year</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="building">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="8" opacity="0.5"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Building</div><div class="opt-sub">1 – 3 years</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="experienced">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="8"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Experienced</div><div class="opt-sub">3 – 7 years</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="advanced">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="11" opacity="0.4"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Advanced</div><div class="opt-sub">7+ years · competitive</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()" disabled>Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 4: FREQUENCY ========== -->
+  <div class="screen" data-step="4">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 50%"></div></div>
+      <span class="step-counter">04/08</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 04 · Schedule</div>
+      <h1 class="q">Sessions<br>per <span class="accent">week?</span></h1>
+      <div class="lead">Be honest — better to nail 3 than miss 5.</div>
+      <div class="freq-row" data-group="frequency">
+        <button class="freq-btn" data-val="2">2</button>
+        <button class="freq-btn" data-val="3">3</button>
+        <button class="freq-btn" data-val="4">4</button>
+        <button class="freq-btn" data-val="5">5</button>
+        <button class="freq-btn" data-val="6">6</button>
+      </div>
+      <div class="freq-caption" id="freqCaption">Select a frequency to see the recommendation</div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()" disabled>Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 5: EQUIPMENT ========== -->
+  <div class="screen" data-step="5">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 62%"></div></div>
+      <span class="step-counter">05/08</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 05 · Setup</div>
+      <h1 class="q">Where do you<br><span class="accent">train?</span></h1>
+      <div class="lead">Exercise substitutions will match what you actually have.</div>
+      <div class="opts" data-group="equipment">
+        <button class="opt" data-val="home">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Home Gym</div><div class="opt-sub">Full kit · own bar / rack / DBs</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="commercial">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3zM8 4v16M16 4v16"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Commercial Gym</div><div class="opt-sub">Machines · barbells · cables</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="minimal">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 7h4M12 7v10"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Hotel / Minimal</div><div class="opt-sub">Bands · bodyweight · DBs</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+        <button class="opt" data-val="mix">
+          <div class="opt-icon"><svg viewBox="0 0 24 24"><path d="M5 5h6v6H5zM13 5h6v6h-6zM5 13h6v6H5zM13 13h6v6h-6z"/></svg></div>
+          <div class="opt-info"><div class="opt-title">Mix / Travel</div><div class="opt-sub">Different setups each week</div></div>
+          <div class="opt-check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+        </button>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()" disabled>Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 6: LIMITATIONS ========== -->
+  <div class="screen" data-step="6">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 75%"></div></div>
+      <span class="step-counter">06/08</span>
+      <button class="skip-btn" onclick="advance()">Skip</button>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 06 · Optional</div>
+      <h1 class="q">Anywhere we<br>should be <span class="accent">careful?</span></h1>
+      <div class="lead">We'll work around these and suggest mobility where relevant. Multi-select.</div>
+      <div class="chips-grid" id="limChips">
+        <div class="ms-chip" data-val="lower-back">Lower back</div>
+        <div class="ms-chip" data-val="knees">Knees</div>
+        <div class="ms-chip" data-val="shoulders">Shoulders</div>
+        <div class="ms-chip" data-val="hips">Hips</div>
+        <div class="ms-chip" data-val="neck">Neck</div>
+        <div class="ms-chip" data-val="elbows">Wrists / elbows</div>
+        <div class="ms-chip" data-val="ankles">Ankles</div>
+        <div class="ms-chip none" data-val="none">None of these</div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 7: UNITS ========== -->
+  <div class="screen" data-step="7">
+    <div class="top">
+      <button class="back-btn" onclick="back()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="progress"><div class="progress-fill" style="width: 87%"></div></div>
+      <span class="step-counter">07/08</span>
+    </div>
+    <div class="content">
+      <div class="eyebrow">Step 07 · Units</div>
+      <h1 class="q">Pounds or<br><span class="accent">kilos?</span></h1>
+      <div class="lead">You can switch any time in settings.</div>
+      <div class="unit-toggle">
+        <div class="unit-slide kg" id="unitSlide"></div>
+        <button class="unit-opt selected" data-val="kg" onclick="setUnit('kg')">Kilos</button>
+        <button class="unit-opt" data-val="lb" onclick="setUnit('lb')">Pounds</button>
+      </div>
+      <div class="unit-sample">
+        <span class="label">Your last bench</span>
+        <span class="val" id="unitSample">97.5 kg</span>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="advance()">Continue <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 8: CALIBRATING ========== -->
+  <div class="screen calibrating" data-step="8">
+    <div class="calib-ring">
+      <svg viewBox="0 0 120 120">
+        <circle class="t" cx="60" cy="60" r="54"/>
+        <circle class="p" cx="60" cy="60" r="54"/>
+      </svg>
+    </div>
+    <div class="calib-label">Calibrating</div>
+    <div class="calib-msg" id="calibMsg">Reading your setup…</div>
+  </div>
+
+  <!-- ========== SCREEN 9: SUMMARY ========== -->
+  <div class="screen" data-step="9">
+    <div class="content">
+      <div class="summary-hero">
+        <div class="summary-tag">Ready · calibrated to you</div>
+        <h1 class="summary-title" id="summaryName">Ready,<br><span class="accent">Dave.</span></h1>
+      </div>
+
+      <div class="sum-card primary">
+        <div class="sum-label">Your programme · matched</div>
+        <div class="sum-value">Upper / Lower 4×</div>
+        <div class="sum-meta">Intermediate · 6-week block · Golf-aware</div>
+      </div>
+
+      <div class="sum-row">
+        <div class="sum-card">
+          <div class="sum-label">Weekly volume target</div>
+          <div class="sum-value">24 – 28 <span style="font-size:14px;color:var(--text-dim);">t</span></div>
+          <div class="sum-meta">Tonnes lifted</div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">Session length</div>
+          <div class="sum-value">45 <span style="font-size:14px;color:var(--text-dim);">min</span></div>
+          <div class="sum-meta">Target average</div>
+        </div>
+      </div>
+
+      <div class="sum-card">
+        <div class="sum-label">First session · today</div>
+        <div class="sum-value" style="font-size: 24px;">Upper Push A</div>
+        <div class="sum-meta">8 exercises · 24 sets · RPE 6 – 7</div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta" onclick="enterApp()">Enter FitTrack <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const state = {
+    step: 0,
+    maxStep: 9,
+    answers: {
+      name: 'Dave',
+      focus: null,
+      experience: null,
+      frequency: null,
+      equipment: null,
+      limitations: [],
+      units: 'kg'
+    }
+  };
+
+  function showScreen(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.querySelector(`.screen[data-step="${n}"]`);
+    if (target) target.classList.add('active');
+    state.step = n;
+
+    // Handle calibrating loop
+    if (n === 8) runCalibration();
+  }
+
+  function advance() {
+    // Validate current step
+    if (state.step === 1) {
+      const v = document.getElementById('nameIn').value.trim();
+      if (!v) return;
+      state.answers.name = v;
+      document.getElementById('summaryName').innerHTML = `Ready,<br><span class="accent">${v}.</span>`;
+    }
+
+    const next = Math.min(state.step + 1, state.maxStep);
+    showScreen(next);
+  }
+
+  function back() {
+    const prev = Math.max(state.step - 1, 0);
+    showScreen(prev);
+  }
+
+  function enterApp() {
+    alert('Welcome to FitTrack, ' + state.answers.name + '!\n\n(This is where the app would open.)');
+  }
+
+  // Single-select option cards
+  document.querySelectorAll('.opts').forEach(group => {
+    const key = group.dataset.group;
+    group.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        group.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        state.answers[key] = opt.dataset.val;
+        // Enable CTA
+        const screen = opt.closest('.screen');
+        screen.querySelector('.cta').disabled = false;
+      });
+    });
+  });
+
+  // Frequency selector
+  const freqCaptions = {
+    '2': '<strong>2 sessions</strong>Full-body efficiency · great for golf-heavy weeks',
+    '3': '<strong>3 sessions</strong>Sustainable · push/pull/legs territory',
+    '4': '<strong>4 sessions</strong>Sweet spot · upper/lower or PPL-lite',
+    '5': '<strong>5 sessions</strong>Serious volume · pace recovery',
+    '6': '<strong>6 sessions</strong>Competitive load · matched by experience'
+  };
+  document.querySelectorAll('.freq-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.freq-btn').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      state.answers.frequency = b.dataset.val;
+      document.getElementById('freqCaption').innerHTML = freqCaptions[b.dataset.val];
+      b.closest('.screen').querySelector('.cta').disabled = false;
+    });
+  });
+
+  // Limitation chips (multi-select)
+  document.querySelectorAll('#limChips .ms-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (chip.dataset.val === 'none') {
+        document.querySelectorAll('#limChips .ms-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        state.answers.limitations = ['none'];
+      } else {
+        document.querySelector('#limChips .ms-chip[data-val="none"]').classList.remove('selected');
+        chip.classList.toggle('selected');
+        state.answers.limitations = [...document.querySelectorAll('#limChips .ms-chip.selected')].map(c => c.dataset.val);
+      }
+    });
+  });
+
+  // Units toggle
+  function setUnit(u) {
+    state.answers.units = u;
+    document.querySelectorAll('.unit-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === u));
+    document.getElementById('unitSlide').className = 'unit-slide ' + u;
+    document.getElementById('unitSample').textContent = u === 'kg' ? '97.5 kg' : '215 lb';
+  }
+
+  // Calibration animation loop
+  function runCalibration() {
+    const msgs = [
+      'Reading your setup…',
+      'Matching a programme…',
+      'Setting volume targets…',
+      'Scheduling first session…',
+      'Almost there…'
+    ];
+    const el = document.getElementById('calibMsg');
+    let i = 0;
+    el.textContent = msgs[0];
+    const int = setInterval(() => {
+      i++;
+      if (i >= msgs.length) {
+        clearInterval(int);
+        setTimeout(() => showScreen(9), 500);
+        return;
+      }
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = msgs[i];
+        el.style.opacity = '1';
+      }, 200);
+    }, 700);
+  }
+
+  // Style for calib message fade
+  const style = document.createElement('style');
+  style.textContent = '.calib-msg { transition: opacity 0.2s; }';
+  document.head.appendChild(style);
+
+  // Prevent # nav
+  document.querySelectorAll('a[href="#"]').forEach(a => a.onclick = e => e.preventDefault());
+</script>
+
+</body>
+</html>
