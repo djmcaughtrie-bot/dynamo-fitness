@@ -8,9 +8,9 @@ const CSS = `
   padding: 14px 18px 10px;
 }
 .workout-back {
-  width: 40px; height: 40px; background: var(--surface); border: 1px solid var(--border-soft);
+  width: 40px; height: 40px; background: var(--surface); border: none;
   border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  color: var(--text); cursor: pointer; border: none;
+  color: var(--text); cursor: pointer;
 }
 .workout-back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 .workout-live {
@@ -21,9 +21,9 @@ const CSS = `
 }
 .workout-live::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.8s infinite; }
 .workout-timer-btn {
-  width: 40px; height: 40px; background: var(--surface); border: 1px solid var(--border-soft);
+  width: 40px; height: 40px; background: var(--surface); border: none;
   border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  color: var(--text-dim); cursor: pointer; border: none;
+  color: var(--text-dim); cursor: pointer;
 }
 .workout-timer-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 .ex-header { padding: 8px 22px 20px; }
@@ -89,7 +89,7 @@ const DEFAULT_EXERCISES = [
 ]
 
 export default function ActiveWorkout({ onClose }) {
-  const [workouts, saveWorkouts] = useStorage('fittrack_workouts', [])
+  const [, saveWorkouts] = useStorage('fittrack_workouts', [])
   const [exIdx, setExIdx] = useState(0)
   const [sets, setSets] = useState(() => DEFAULT_EXERCISES.map(ex => ex.sets.map(() => ({ reps: '', weight: '', done: false }))))
   const [rpe, setRpe] = useState(0)
@@ -138,7 +138,7 @@ export default function ActiveWorkout({ onClose }) {
       })).filter(ex => ex.sets.length > 0),
       rpe,
     }
-    saveWorkouts([...workouts, workout])
+    saveWorkouts(prev => [...prev, workout])
     onClose()
   }
 
