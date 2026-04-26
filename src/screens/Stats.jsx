@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStorage, today, dateLabel, kg } from '../utils'
+import { useStorage } from '../utils'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 function HubToggle({ tabs, value, onChange }) {
