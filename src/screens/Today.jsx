@@ -78,7 +78,7 @@ const CSS = `
 .intensity-seg { flex: 1; height: 5px; background: var(--surface-3); border-radius: 1px; }
 .intensity-seg.on { background: var(--accent); }
 .begin-btn {
-  margin-top: 16px; width: 100%; background: var(--accent); color: #000; border: none;
+  margin-top: 16px; width: 100%; background: var(--accent); color: var(--on-accent); border: none;
   border-radius: var(--r-md); padding: 14px 20px;
   font-family: var(--font-display); font-weight: 900; font-size: 18px;
   text-transform: uppercase; letter-spacing: 0.02em; cursor: pointer;
@@ -147,7 +147,7 @@ const CSS = `
 }
 .ai-suggestion p { font-size: 13px; color: var(--text-dim); line-height: 1.45; margin-bottom: 14px; max-width: 90%; }
 .ai-cta-pill {
-  display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #000;
+  display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--on-accent);
   font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
   text-transform: uppercase; padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer;
 }
@@ -241,7 +241,7 @@ export default function Today({ setTab }) {
             <p>How are you feeling? Takes 2 minutes.</p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-            <button style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 'var(--r-md)', padding: '9px 14px', fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', cursor: 'pointer' }}
+            <button style={{ background: 'var(--accent)', color: 'var(--on-accent)', border: 'none', borderRadius: 'var(--r-md)', padding: '9px 14px', fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 13, textTransform: 'uppercase', cursor: 'pointer' }}
               onClick={() => setTab('checkin')}>
               Start
             </button>
