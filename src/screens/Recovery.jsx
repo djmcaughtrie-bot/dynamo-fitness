@@ -221,13 +221,15 @@ function BendSession({ program, onClose }) {
   const total = program.stretches.length
 
   useEffect(() => {
-    if (running && timeLeft > 0) { ref.current = setTimeout(() => setTimeLeft(t => t - 1), 1000) }
-    else if (running && timeLeft === 0) {
-      if (idx + 1 < total) { setIdx(i => i + 1); const next = STRETCH_LIBRARY.find(s => s.name === program.stretches[idx+1]); setTimeLeft(next?.hold || 30) }
-      else { setPhase('done'); setRunning(false) }
-    }
+    if (!running || timeLeft <= 0) return
+    ref.current = setTimeout(() => {
+      if (timeLeft <= 1) {
+        if (idx + 1 < total) { const next = STRETCH_LIBRARY.find(s => s.name === program.stretches[idx + 1]); setIdx(i => i + 1); setTimeLeft(next?.hold || 30) }
+        else { setPhase('done'); setRunning(false) }
+      } else { setTimeLeft(t => t - 1) }
+    }, 1000)
     return () => clearTimeout(ref.current)
-  }, [running, timeLeft])
+  }, [running, timeLeft, idx, total, program.stretches])
 
   const hold = stretch?.hold || 30
   const pct = timeLeft / hold
@@ -346,13 +348,15 @@ function RecoverySession({ protocol, onClose }) {
   const step = protocol.steps[idx]
 
   useEffect(() => {
-    if (running && timeLeft > 0) { ref.current = setTimeout(() => setTimeLeft(t => t - 1), 1000) }
-    else if (running && timeLeft === 0) {
-      if (idx + 1 < protocol.steps.length) { const next = protocol.steps[idx+1]; setIdx(i=>i+1); setTimeLeft(next.duration) }
-      else { setDone(true); setRunning(false) }
-    }
+    if (!running || timeLeft <= 0) return
+    ref.current = setTimeout(() => {
+      if (timeLeft <= 1) {
+        if (idx + 1 < protocol.steps.length) { const next = protocol.steps[idx + 1]; setIdx(i => i + 1); setTimeLeft(next.duration) }
+        else { setDone(true); setRunning(false) }
+      } else { setTimeLeft(t => t - 1) }
+    }, 1000)
     return () => clearTimeout(ref.current)
-  }, [running, timeLeft])
+  }, [running, timeLeft, idx, protocol.steps])
 
   const pct = timeLeft / (step?.duration || 60)
   const r = 54; const c = 2 * Math.PI * r

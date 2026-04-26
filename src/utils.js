@@ -4,7 +4,7 @@ export function useStorage(key, init) {
   const [val, setVal] = useState(() => {
     try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : init } catch { return init }
   })
-  const save = v => { setVal(v); try { localStorage.setItem(key, JSON.stringify(v)) } catch {} }
+  const save = v => { setVal(v); try { localStorage.setItem(key, JSON.stringify(v)) } catch { /* storage unavailable */ } }
   return [val, save]
 }
 
