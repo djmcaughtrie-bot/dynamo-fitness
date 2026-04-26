@@ -184,6 +184,7 @@ export default function Today({ setTab }) {
   const [checkins] = useStorage('ft-checkins', [])
   const [dismissBanner, setDismissBanner] = useState(false)
 
+  const now = new Date()
   const todayStr = today()
   const todayCheckin = checkins.find(c => c.date === todayStr)
   const showBanner = !todayCheckin && !dismissBanner
@@ -194,7 +195,7 @@ export default function Today({ setTab }) {
     ...checkins.map(c => c.date),
   ])
   let streak = 0
-  const cur = new Date()
+  const cur = new Date(now)
   while (true) {
     const ds = cur.toISOString().slice(0, 10)
     if (activeDays.has(ds)) { streak++; cur.setDate(cur.getDate() - 1) }
@@ -203,7 +204,7 @@ export default function Today({ setTab }) {
 
   // Weekly volume bars (last 7 days, Mon–Sun of current week)
   const week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - (6 - i))
+    const d = new Date(now); d.setDate(d.getDate() - (6 - i))
     const ds = d.toISOString().slice(0, 10)
     const vol = workouts
       .filter(w => w.date === ds)
@@ -217,7 +218,7 @@ export default function Today({ setTab }) {
   const activeDaysThisWeek = week.filter(d => d.vol > 0).length
 
   const recent = workouts.slice(-5).reverse()
-  const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }).toUpperCase()
+  const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }).toUpperCase()
 
   return (
     <div className="today-screen">
@@ -229,7 +230,7 @@ export default function Today({ setTab }) {
       </div>
 
       <PageHead
-        eyebrow={new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
+        eyebrow={now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
         title="LET'S MAKE IT"
         accent="COUNT."
       />
@@ -316,7 +317,7 @@ export default function Today({ setTab }) {
         </div>
         <div className="day-labels">
           {DAYS.map((d, i) => (
-            <span key={i} className={week[i]?.isToday ? 'is-today' : ''}>{d}</span>
+            <span key={i} className={week[i].isToday ? 'is-today' : ''}>{d}</span>
           ))}
         </div>
         <div className="week-stats">
