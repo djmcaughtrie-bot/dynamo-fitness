@@ -57,7 +57,7 @@ function computeFlares(checkins) {
 
 export default function FitTrack() {
   const [tab, setTab] = useState('today')
-  const [onboarding] = useStorage('ft-onboarding', { complete: false })
+  const [onboarding, saveOnboarding] = useStorage('ft-onboarding', { complete: false })
   const [checkins] = useStorage('ft-checkins', [])
 
   const flares = useMemo(() => computeFlares(checkins), [checkins])
@@ -68,7 +68,7 @@ export default function FitTrack() {
     : 0
 
   const todayScreen = () => {
-    if (!onboarding.complete) return <Onboarding onComplete={() => setTab('today')} />
+    if (!onboarding.complete) return <Onboarding onComplete={data => saveOnboarding({ ...data, complete: true })} />
     if (todayMaxSeverity >= 1) return <AdaptiveToday setTab={setTab} flares={flares} />
     return <Today setTab={setTab} />
   }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useStorage } from '../utils'
 
 const FOCUS_OPTIONS = ['Hypertrophy', 'Strength', 'Fat Loss', 'General Fitness', 'Athletic Performance']
 const EXPERIENCE_OPTIONS = ['Beginner (0–1 yr)', 'Intermediate (1–3 yrs)', 'Advanced (3+ yrs)']
@@ -40,7 +39,6 @@ const STEPS = ['welcome', 'name', 'focus', 'experience', 'frequency', 'equipment
 const CALIBRATING_IDX = STEPS.indexOf('calibrating')
 
 export default function Onboarding({ onComplete }) {
-  const [, saveOnboarding] = useStorage('ft-onboarding', { complete: false })
   const [step, setStep] = useState(0)
   const [form, setForm] = useState({ name: '', focus: '', experience: '', frequency: 4, equipment: [], limitations: [], units: 'kg' })
 
@@ -54,8 +52,7 @@ export default function Onboarding({ onComplete }) {
   const next = () => setStep(s => s + 1)
 
   const finish = () => {
-    saveOnboarding({ ...form, complete: true })
-    onComplete()
+    onComplete(form)
   }
 
   const toggle = (field, val) => setForm(f => ({
